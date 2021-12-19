@@ -14,7 +14,6 @@ Oggetti:
 
 -Utente
 +info di base -> chieste all'utente durante la registrazione
-+loggato -> booleano che indica se l'utente x è gia loggato in tal caso non si può loggare lo stesso utente in due client diversi
 +Id univoco -> autogenerato
 +lista di tag -> chieste all'utente durante la registrazione (MAX 5)
 				(esempio: sport musica cinema)
@@ -69,11 +68,11 @@ Oggetti:
 			o comments da altri utenti
 -Client Multicast per gli aggiornamenti
 +voglio avere un Utente oppure un id o qualcosa che mi faccia ottenere alcune info senza doverle richiedere al server?
-.register(username, password, lista di tag[non ci sono dei tag predefiniti, caratteri minuscoli]) -> registrazione di un utente controlla che username sia unico
+.register(username, password, lista di tag[non ci sono dei tag predefiniti, caratteri minuscoli]) -> registrazione di un utente controlla che username sia unico fatta con RMI
 .login()
 .logout()
 
-
+.controlloFollower() -> RMI callback bisogna notificare all'utente se una follower si aggiunge o si rimuove
 
 
 
