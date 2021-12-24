@@ -26,7 +26,6 @@ public class Client implements Runnable {
     public static int DEFAULT_PORT = 1919;
     private static String ADDRESS = "localhost";
     private static final int BUFFER_SIZE = 1024;
-    private static boolean ok = true;
     public static void main(String[] args) {
         //configurazione iniziale del client: porta, addres e buffSize
         int port;
@@ -72,56 +71,17 @@ public class Client implements Runnable {
                 StringBuilder response = new StringBuilder(); //uso la stringbuilder così da poterci fare l'append
                 System.out.println("[CONSOLE]: Inserisci un messaggio");
                 message = input.readLine(); //leggo qualcosa da tastiera a meno che sia vuoto
-                ok = true;
-                if(message.contains("register"))//message.contains("register")
-                {
-                    //System.out.println("sono nella registrazione");
-                    StringTokenizer st = new StringTokenizer(message);
-                    if(st.countTokens()>8)
+                if(message.contains("register"))// qui voglio controllare solo se è un comando register
+                {                               // i controlli sui campi della registrazione li faccio nel RMI
+                                                // perchè vorrei dare la possibilità a più persone di implementare
+                                                // un client con delle API
+                    if(remoteService.register(message))
                     {
-                        System.out.println("[ERROR]: ha messo troppi argomenti");
-                        System.out.println("[CONSOLE]: min 1 tag and max 5 tag");
-                        ok = false;
-                    }else if(st.countTokens()<4)
-                    {
-                        System.out.println("[ERROR]: ha messo pochi argomenti");
-                        ok = false;
-                    }else if(false)//controlli sulla password se è vuota o se non rispetta dei requisiti minimi
-                    {               //tipo min 8 caratteri, almeno una lettera maiuscola, almeno una lettera minuscola e almeno un carattere speciale
-
-                    }
-                    if(ok)//in caso che uno dei controlli non vada a buon fine non faccio la registrazione
-                    {
-                        int i = 0;
-                        String s = null;
-                        String username = null;
-                        String password = null;
-                        Set<String> listTags = new HashSet<>();
-                        s = st.nextToken();//dovrebbe avere la stringa "register"
-                        while (st.hasMoreTokens()) {
-                            s = st.nextToken();
-                            i++;
-                            if(i == 1)//prendo l'username e potrei fare il controllo su di esso se esiste gia
-                            {
-                                username = s;
-                            }
-                            if(i == 2)//devo fare i controlli del caso
-                            {
-                                password = s;
-                            }
-                            if(i>2)//prendo tutti i tags e li metto in minuscolo nella lista
-                            {
-                                listTags.add(s.toLowerCase(Locale.ROOT));
-                            }
-                        }
-                        if(remoteService.register(username,password, listTags))
-                        {
-                            System.out.println("[Client]: registrazione avvenuta con successo");
-                        }
+                        System.out.println("[Client]: registrazione avvenuta con successo");
                     }
                     else
                     {
-                        System.out.println("[CONSOLE]: usege- register <USERNAME> <PASSWORD> <TAG1> <TAG2> <TAG3> <TAG4> <TAG5>");
+                        System.out.println("[ERROR]: registrazione fallita");
                     }
                 }
                 else

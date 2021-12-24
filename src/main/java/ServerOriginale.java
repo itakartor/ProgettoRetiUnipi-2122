@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 
-public class Server {
+public class ServerOriginale {
     public static int DEFAULT_PORT = 1919;
     public static void main(String[] args) {
         int port;

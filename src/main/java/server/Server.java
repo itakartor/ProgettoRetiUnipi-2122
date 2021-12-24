@@ -25,8 +25,7 @@ public class Server {
     private static int DEFAULT_PORT = 1919;
     private static int RegPort = 6666;
     private static final Map<String, User> listClientConnessi = new HashMap<>(); // associa gli id dei client con gli utenti loggati
-
-    public static void main(String[] args) throws RemoteException, InterruptedException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         //LISTA UTENTI
         Set<User> listUser = new HashSet<>();//metodo per ricaricare gli utenti dal file json
         Set<String> t = new HashSet<>();

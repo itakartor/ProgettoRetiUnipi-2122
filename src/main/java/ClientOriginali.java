@@ -4,11 +4,10 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 
-public class Client {
+public class ClientOriginali {
     public static int DEFAULT_PORT = 1919;
     private static String ADDRESS = "localhost";
     private static final int BUFFER_SIZE =1024;
