@@ -3,6 +3,7 @@ package GestioneJson;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import server.resource.ListUser;
 import server.resource.User;
 
 import java.io.FileInputStream;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 public class LeggiJson {
-    public static Set<User> LetturaFile(String pathFile,String nameFile) throws IOException {
+    public static ListUser LetturaFile(String pathFile,String nameFile) throws IOException {
         FileInputStream fin = new FileInputStream( pathFile + "/" +nameFile + ".json");
         FileChannel fc = fin.getChannel();
 
@@ -30,8 +31,8 @@ public class LeggiJson {
         return JsonString_correctDeserializing(inputString);
     }
 
-    public static Set<User> JsonString_correctDeserializing(String inputString) {
-        Type listOfMyClassObject = new TypeToken<ArrayList<User>>() {}.getType();
+    public static ListUser JsonString_correctDeserializing(String inputString) {
+        Type listOfMyClassObject = new TypeToken<ListUser>() {}.getType();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.fromJson(inputString, listOfMyClassObject);
     }

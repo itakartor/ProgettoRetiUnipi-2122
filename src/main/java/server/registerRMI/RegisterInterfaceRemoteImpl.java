@@ -27,7 +27,7 @@ public class RegisterInterfaceRemoteImpl implements RegisterInterfaceRemote{
             case 1:
                 System.out.println("[SERVER]: File json gia esistente");
                 // devo leggere il file
-                this.listUser = LeggiJson.LetturaFile(pathFile,nomeFile);
+                this.listUser = LeggiJson.LetturaFile(pathFile,nomeFile).getListUser();
                 break;
             case -1:
                 System.out.println("[ERROR]: Creazione File json fallita");

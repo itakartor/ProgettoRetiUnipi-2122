@@ -4,12 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class User {
-    private String username; //univoco
-    private Integer idUser;
-    private Set<String> tags;
-    private Set<User> followings;
-    private Set<Post> myPost;
-    private Set<Post> rewinPost;
+    private final String username; //univoco
+    private final String idUser;
+    private final Set<String> tags;
+    private final Set<User> followings;
+    private final Set<Post> myPost;
+    private final Set<Post> rewinPost;
 
     public String getUsername()
     {
@@ -18,11 +18,11 @@ public class User {
 
     public User(String username, Set<String> tags, Integer idUser) {
         this.username = username;
-        this.idUser = idUser;
+        this.idUser = String.valueOf(idUser);
         this.tags = tags;
-        this.followings = new HashSet<User>();
-        this.myPost = new HashSet<Post>();
-        this.rewinPost = new HashSet<Post>();
+        this.followings = new HashSet<>();
+        this.myPost = new HashSet<>();
+        this.rewinPost = new HashSet<>();
     }
 
     @Override

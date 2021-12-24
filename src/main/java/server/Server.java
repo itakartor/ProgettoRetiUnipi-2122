@@ -19,13 +19,16 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
 
-    private static int DEFAULT_PORT = 1919;
-    private static int RegPort = 6666;
+    private static final int DEFAULT_PORT = 1919;
+    private static final int RegPort = 6666;
     private static final Map<String, User> listClientConnessi = new HashMap<>(); // associa gli id dei client con gli utenti loggati
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         //LISTA UTENTI
         Set<User> listUser = new HashSet<>();//metodo per ricaricare gli utenti dal file json
         Set<String> t = new HashSet<>();
@@ -34,6 +37,7 @@ public class Server {
         User user = new User("carmine",t,1);
         listUser.add(user);
         Integer counterUser = listUser.size();
+
 
         //parte RMI
         /* Creazione di un'istanza dell'oggetto EUStatsService */
@@ -50,8 +54,9 @@ public class Server {
         //Thread.sleep(5000);
         //System.out.println("Lista Utente "+ listUser.toString());
 
-
-
+        //inizializzazione di un pool di thread
+        ExecutorService service = Executors.newCachedThreadPool();
+        // Thread threadSave = new Thread();
         //THREAD RMI -> LISTA UTENTI
         //Thread Trmi = new Thread();
         //leggo il file della configurazione
