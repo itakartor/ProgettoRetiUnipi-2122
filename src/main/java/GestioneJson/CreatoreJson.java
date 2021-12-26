@@ -3,6 +3,8 @@ package GestioneJson;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.testcontainers.shaded.com.google.common.io.Files;
+import server.resource.ListUser;
+import server.resource.ListUserLight;
 import server.resource.User;
 
 import java.io.File;
@@ -44,7 +46,7 @@ public class CreatoreJson {
 
         return 0; // ho creato il file
     }
-        public static boolean AggiornametoFileUsers(String pathFile, String nameFile, Set<User> listUsers) throws IOException {
+        public static boolean AggiornametoFileUsers(String pathFile, String nameFile, Set<User> listUser) throws IOException {
             if(pathFile == null || nameFile == null)
             {
                 System.out.println("[ERROR]: Configurazione nella Creazione file json nulla");
@@ -70,9 +72,12 @@ public class CreatoreJson {
             *   ],
             *   timeStamp
             * }*/
-            buffer.put("{".getBytes(StandardCharsets.UTF_8));
 
-            buffer.put("\"listUsers\":[".getBytes(StandardCharsets.UTF_8));
+            ListUserLight listUserLight = new ListUserLight(new SimpleDateFormat("dd/MM/yyyy").format(new Date()),listUser);
+
+            buffer.put(gson.toJson(listUserLight).getBytes(StandardCharsets.UTF_8));
+
+            /*buffer.put("\"listUsers\":[".getBytes(StandardCharsets.UTF_8));
             int i = 0;
             for(User user : listUsers) {
                 i++;
@@ -85,8 +90,7 @@ public class CreatoreJson {
             buffer.put("\"timeStamp\":".getBytes(StandardCharsets.UTF_8));
             buffer.put("\"".getBytes(StandardCharsets.UTF_8));
             buffer.put(new SimpleDateFormat("dd/MM/yyyy").format(new Date()).getBytes(StandardCharsets.UTF_8));
-            buffer.put("\"".getBytes(StandardCharsets.UTF_8));
-            buffer.put("}".getBytes(StandardCharsets.UTF_8));
+            buffer.put("\"".getBytes(StandardCharsets.UTF_8));*/
 
             buffer.flip();
             fc.write(buffer);

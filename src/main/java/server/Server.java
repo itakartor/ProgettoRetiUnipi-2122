@@ -2,9 +2,10 @@ package server;
 
 import server.registerRMI.RegisterInterfaceRemote;
 import server.registerRMI.RegisterInterfaceRemoteImpl;
-import server.resource.User;
+import server.registerRMI.TaskSave;
+import server.resource.ListUsersConnessi;
+import server.task.TaskLogin;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -14,34 +15,39 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Server {
 
     private static final int DEFAULT_PORT = 1919;
     private static final int RegPort = 6666;
-    private static final Map<String, User> listClientConnessi = new HashMap<>(); // associa gli id dei client con gli utenti loggati
+    private static final ListUsersConnessi listUsersConnessi = new ListUsersConnessi(); // associa gli id dei client con gli utenti loggati
+
     public static void main(String[] args) throws IOException {
         //LISTA UTENTI
-        Set<User> listUser = new HashSet<>();//metodo per ricaricare gli utenti dal file json
+        /*Set<User> listUser = new HashSet<>();//metodo per ricaricare gli utenti dal file json
         Set<String> t = new HashSet<>();
         t.add("sport");
         t.add("video");
         User user = new User("carmine",t,1);
         listUser.add(user);
-        Integer counterUser = listUser.size();
-
+        Integer counterUser = listUser.size();*/
+        String pathFile = "C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\documentation";
+        String nameFile = "users";
 
         //parte RMI
         /* Creazione di un'istanza dell'oggetto EUStatsService */
-        RegisterInterfaceRemoteImpl remoteService = new RegisterInterfaceRemoteImpl(listUser,counterUser);
+        RegisterInterfaceRemoteImpl remoteService = new RegisterInterfaceRemoteImpl();
+        // thread dedito al salvataggio della lista con i vari cambiamenti, in modo tale da evitare sprechi
+        Thread threadSave = new Thread(new TaskSave(20000,pathFile,nameFile,remoteService.getObjectListUser()));
+        threadSave.start();
         /* Esportazione dell'Oggetto */
         RegisterInterfaceRemote stub = (RegisterInterfaceRemote)
                 UnicastRemoteObject.exportObject(remoteService, 0);
@@ -69,8 +75,8 @@ public class Server {
         System.out.println("Using port " + port);
 
         //socket, selector e channel
-        ServerSocketChannel serverChannel = null; //socket del server
-        Selector selector = null;
+        ServerSocketChannel serverChannel; //socket del server
+        Selector selector;
         try { //configurazione server con creazione e bind di socket e selector
             serverChannel = ServerSocketChannel.open(); //apro socket
             ServerSocket ss = serverChannel.socket(); //la metto come socket
@@ -124,21 +130,27 @@ public class Server {
                     if (key.isAcceptable()) {
                         registrazione(selector, key); //viene registrata
                     } else if (key.isReadable()) {
-                        //legge il contenuto
-                        //MEGA SWOTHC DELLA MORTE CON I FULMINI
-                        String output = "";//stringa da modificare per rispondere al client
-                        String a = leggiCanale(selector, key);
-                        ByteBuffer buffer = (ByteBuffer)key.attachment();//buffer della chiave
-                        switch (a)
+                        // legge il contenuto
+                        // MEGA SWOTHC DELLA MORTE CON I FULMINI
+                        String output; // stringa da modificare per rispondere al client
+                        String input = leggiCanale(selector, key);
+
+                        StringTokenizer st = new StringTokenizer(input);
+                        String tokenComando = st.nextToken();// dovrebbe avere la stringa del comando
+
+                        ByteBuffer buffer = (ByteBuffer)key.attachment();// buffer della chiave
+
+                        switch (tokenComando)
                         {
                             case"login":
                             {
-                                output = "ti sei loggato";
-                                break;
-                            }
-                            case"register":
-                            {
-                                output="ti sei registrato";
+                                String username = st.nextToken();
+                                String password = st.nextToken();
+                                String idClient = st.nextToken();
+                                Future<String> future = service.submit(new TaskLogin(username,password,remoteService.getListUser(),idClient,listUsersConnessi));
+                                // output = "ti sei loggato " + username +" " + password + " " + idClient;
+                                output = future.get();
+                                System.out.println(output);
                                 break;
                             }
                             case"post":
@@ -157,7 +169,7 @@ public class Server {
                                 System.out.println("[SERVER]:Comando non riconosciuto");
                             }
                         }
-                        //meccanismo di risposta al client
+                        // meccanismo di risposta al client
                         buffer.put(output.getBytes(StandardCharsets.UTF_8));
                         buffer.flip();
                     }else if(key.isWritable()){
@@ -170,6 +182,8 @@ public class Server {
                     } catch (IOException cex) {
                         cex.printStackTrace();
                     }
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -180,7 +194,7 @@ public class Server {
         SocketChannel client = server.accept();                           //accetto la richiesta del server
         String clientId = client.socket().getInputStream().toString().substring(client.socket().getInputStream().toString().lastIndexOf("@") + 1 );
         System.out.println("[SERVER]:Connessione accettata dal client: " + clientId);
-        listClientConnessi.put(clientId,null);//inizializzo l'elemento della lista dove segnerò l'utente loggato
+        listUsersConnessi.putListClientConnessi(clientId,null);//inizializzo l'elemento della lista dove segnerò l'utente loggato
         //client.socket().getInputStream().toString().substring(client.socket().getInputStream().toString().lastIndexOf("@") + 1 ) id del client che si connette al server
         ByteBuffer clientByteBuffer = ByteBuffer.wrap(new byte[1024]);
         client.configureBlocking(false);                                    // dico che non deve essere bloccante
@@ -191,14 +205,19 @@ public class Server {
         //System.out.println("sto leggendo dal canale");
         StringBuilder inputString = new StringBuilder(); //stringbuilder per richiesta/risposta (per fare l'append)
         SocketChannel client = (SocketChannel) selectionKey.channel();               //prendo il socket del client
+        String clientId = client.socket().getInputStream().toString().substring(client.socket().getInputStream().toString().lastIndexOf("@") + 1 );
         //System.out.println("ID client? --> "+ client.socket().getInputStream().toString());
         client.configureBlocking(false);
         //System.out.println("fino a qui");
         ByteBuffer buffer = (ByteBuffer) selectionKey.attachment();                  //prendo l'attachment
 
         int nCaratteriLetti = client.read(buffer); //legge dal client
-        System.out.println("[SERVER]:ho letto tot caratteri" + nCaratteriLetti);
-        //quando faccio la lettura del comando che mi viene inviato da un client
+
+        buffer.put(" ".getBytes(StandardCharsets.UTF_8));
+        buffer.put(clientId.getBytes(StandardCharsets.UTF_8)); // server nel login per controllare l'id del client
+
+        // System.out.println("[SERVER]:ho letto tot caratteri" + nCaratteriLetti);
+        // quando faccio la lettura del comando che mi viene inviato da un client
         // avrò una lista delle task da suddividere nei vari thread che dispone il server
         //
         if(nCaratteriLetti < 0){

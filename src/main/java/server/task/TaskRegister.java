@@ -87,8 +87,8 @@ public class TaskRegister implements Callable<Boolean> {
         }
         if(ok)
         {
-
-            User newUser = new User(username,listTags, this.listUser.getListUser().size()+1, Generators.sha256(password), Generators.getRandomString());
+            String seed = Generators.getRandomString();
+            User newUser = new User(username,listTags, this.listUser.getListUser().size()+1, Generators.sha256(password + seed), seed);
             this.listUser.addUser(newUser);
             this.listUser.setModified(true); // dico al sistema che ho modificato la lista degli utenti
             System.out.println("[SERVER]: Registrazione avvenuta con successo: "+ newUser);

@@ -1,16 +1,19 @@
 package server.resource;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ListUser {
     private String timeStamp;
     private Set<User> listUsers;
+    private final ReentrantLock lock;
+    private boolean modified;
 
-    public ListUser(String timeStamp, Set<User> listUser) {
-        this.timeStamp = timeStamp;
-        this.listUsers = listUser;
+    public ListUser() {
+        this.listUsers = new HashSet<>();
+        this.modified = false;
+        this.lock = new ReentrantLock();
     }
 
     public Set<User> getListUser() {
@@ -29,8 +32,29 @@ public class ListUser {
         this.listUsers = listUser;
     }
 
+    public void setModified(Boolean modified) {
+        this.modified = modified;
+    }
+
+
     public void addUser(User user)
     {
         this.listUsers.add(user);
+    }
+
+    public ReentrantLock getLock() {
+        return lock;
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    @Override
+    public String toString() {
+        return "ListUser{" +
+                "timeStamp='" + timeStamp + '\'' +
+                ", listUsers=" + listUsers +
+                '}';
     }
 }
