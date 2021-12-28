@@ -1,13 +1,18 @@
 import GestioneJson.CreatoreJson;
 import GestioneJson.LeggiJson;
 import client.Client;
+import config.ConfigField;
 import server.resource.ListUser;
 import server.resource.User;
+import util.UtilFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -89,5 +94,19 @@ public class Main {
         for (Map.Entry<String, User> entry : map.entrySet()) { // controllo se trovo lo stesso utente loggato su un altro client
             System.out.println(entry.getKey() + " " + entry.getValue());
         }*/
+/*
+        String file ="C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\src\\main\\java\\config\\serverConfig.txt";
+
+
+        List<String> a = UtilFile.readAllLine(file);
+        List<String> filteredList = UtilFile.filterLine(a);
+        filteredList.forEach(System.out::println);
+
+
+        ConfigField configField = UtilFile.readConfigurationServer(file);
+        System.out.println(configField.toString());*/
+
+        String result = " Utenti     |        Tags   \n---------------------------\n";
+        System.out.print(result);
     }
 }

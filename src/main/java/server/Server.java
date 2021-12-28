@@ -1,10 +1,14 @@
 package server;
 
+import config.ConfigField;
 import server.registerRMI.RegisterInterfaceRemote;
 import server.registerRMI.RegisterInterfaceRemoteImpl;
 import server.registerRMI.TaskSave;
 import server.resource.ListUsersConnessi;
+import server.task.TaskListUsers;
 import server.task.TaskLogin;
+import server.task.TaskLogout;
+import util.UtilFile;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -26,10 +30,12 @@ import java.util.concurrent.Future;
 
 public class Server {
 
-    private static final int DEFAULT_PORT = 1919;
+    private static final int DEFAULT_PORT = 1919; // 6666
     private static final int RegPort = 6666;
     private static final ListUsersConnessi listUsersConnessi = new ListUsersConnessi(); // associa gli id dei client con gli utenti loggati
-
+    private static final String pathFileConfig ="C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\src\\main\\java\\config\\serverConfig.txt";
+    private static final String pathFile = "C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\documentation";
+    private static final String nameFile = "users";
     public static void main(String[] args) throws IOException {
         //LISTA UTENTI
         /*Set<User> listUser = new HashSet<>();//metodo per ricaricare gli utenti dal file json
@@ -39,14 +45,13 @@ public class Server {
         User user = new User("carmine",t,1);
         listUser.add(user);
         Integer counterUser = listUser.size();*/
-        String pathFile = "C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\documentation";
-        String nameFile = "users";
+        ConfigField configServer = UtilFile.readConfigurationServer(pathFileConfig); // legge la configurazione ma non la applica
 
         //parte RMI
         /* Creazione di un'istanza dell'oggetto EUStatsService */
         RegisterInterfaceRemoteImpl remoteService = new RegisterInterfaceRemoteImpl();
         // thread dedito al salvataggio della lista con i vari cambiamenti, in modo tale da evitare sprechi
-        Thread threadSave = new Thread(new TaskSave(20000,pathFile,nameFile,remoteService.getObjectListUser()));
+        Thread threadSave = new Thread(new TaskSave(configServer.getMsTimeout(),pathFile,nameFile,remoteService.getObjectListUser()));
         threadSave.start();
         /* Esportazione dell'Oggetto */
         RegisterInterfaceRemote stub = (RegisterInterfaceRemote)
@@ -132,14 +137,13 @@ public class Server {
                     } else if (key.isReadable()) {
                         // legge il contenuto
                         // MEGA SWOTHC DELLA MORTE CON I FULMINI
-                        String output; // stringa da modificare per rispondere al client
+                        String output = null; // stringa da modificare per rispondere al client
                         String input = leggiCanale(selector, key);
 
                         StringTokenizer st = new StringTokenizer(input);
                         String tokenComando = st.nextToken();// dovrebbe avere la stringa del comando
 
                         ByteBuffer buffer = (ByteBuffer)key.attachment();// buffer della chiave
-
                         switch (tokenComando)
                         {
                             case"login":
@@ -150,7 +154,14 @@ public class Server {
                                 Future<String> future = service.submit(new TaskLogin(username,password,remoteService.getListUser(),idClient,listUsersConnessi));
                                 // output = "ti sei loggato " + username +" " + password + " " + idClient;
                                 output = future.get();
-                                System.out.println(output);
+                                // System.out.println(output);
+                                break;
+                            }
+                            case"logout":
+                            {
+                                String idClient = st.nextToken();
+                                Future<String> future = service.submit(new TaskLogout(idClient,listUsersConnessi));
+                                output = future.get();
                                 break;
                             }
                             case"post":
@@ -161,6 +172,31 @@ public class Server {
                             case"help":
                             {
                                 output = "il programma lo usi con le mani";
+                                break;
+                            }
+                            case"list":
+                            {
+                                switch (st.nextToken())
+                                {
+                                    case"users":
+                                    {
+                                        String idClient = st.nextToken();
+                                        Future<String> future = service.submit(new TaskListUsers(remoteService.getListUser(),listUsersConnessi,idClient));
+                                        output = future.get();
+                                        System.out.println(output);
+                                        break;
+                                    }
+                                    case"followers":
+                                    {
+                                        output = "";
+                                        break;
+                                    }
+                                    case"following":
+                                    {
+                                        output = "a";
+                                        break;
+                                    }
+                                }
                                 break;
                             }
                             default:

@@ -1,6 +1,7 @@
 package server.resource;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class User {
@@ -39,12 +40,20 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                ", idUser='" + idUser + '\'' +
-                ", tags=" + tags +
-                ", hashPassword='" + hashPassword + '\'' +
-                ", seed='" + seed + '\'' +
-                '}';
+        StringBuilder result = new StringBuilder(this.username + "     |     ");
+        Iterator<String> iterator = this.tags.iterator();
+        while (iterator.hasNext()) {
+            result.append(iterator.next());
+            //Do stuff
+            if (iterator.hasNext()) {
+                result.append(", ");
+            }
+        }
+        result.append("\n");
+        return result.toString();
+    }
+
+    public Set<String> getTags() {
+        return tags;
     }
 }
