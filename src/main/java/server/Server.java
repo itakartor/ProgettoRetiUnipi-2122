@@ -5,9 +5,7 @@ import server.registerRMI.RegisterInterfaceRemote;
 import server.registerRMI.RegisterInterfaceRemoteImpl;
 import server.registerRMI.TaskSave;
 import server.resource.ListUsersConnessi;
-import server.task.TaskListUsers;
-import server.task.TaskLogin;
-import server.task.TaskLogout;
+import server.task.*;
 import util.UtilFile;
 
 import java.io.IOException;
@@ -164,11 +162,6 @@ public class Server {
                                 output = future.get();
                                 break;
                             }
-                            case"post":
-                            {
-                                output="hai postato una risorsa";
-                                break;
-                            }
                             case"help":
                             {
                                 output = "il programma lo usi con le mani";
@@ -193,10 +186,36 @@ public class Server {
                                     }
                                     case"following":
                                     {
-                                        output = "a";
+                                        String idClient = st.nextToken();
+                                        Future<String> future = service.submit(new TaskListFollowing(remoteService.getListUser(),listUsersConnessi,idClient));
+                                        output = future.get();
+                                        // System.out.println(output);
                                         break;
                                     }
                                 }
+                                break;
+                            }
+                            case"follow": // follow username idClient
+                            {
+                                String username = st.nextToken();
+                                String idClient = st.nextToken();
+                                Future<String> future;
+                                break;
+                            }
+                            case"blog":
+                            {
+                                String idClient = st.nextToken();
+                                Future<String> future = service.submit(new TaskBlog(listUsersConnessi,idClient));
+                                output = future.get();
+                                break;
+                            }  // post <title> <content>.
+                            case"post":
+                            {
+                                String title = st.nextToken();
+                                String content = st.nextToken();
+                                String idClient = st.nextToken();
+                                Future<String> future = service.submit(new TaskBlog(listUsersConnessi,idClient));
+                                output = future.get();
                                 break;
                             }
                             default:

@@ -23,7 +23,7 @@ public class TaskListUsers implements Callable<String> {
         StringBuilder result = new StringBuilder("[SERVER]:Richiesta list user fallita");
         User myUser = this.listUsersConnessi.getListClientConnessi().get(idClient);
         Set<User> resultList = new HashSet<>();
-        if(myUser != null)
+        if(myUser != null) // se l'utente fosse loggato
         {
             this.listUser.forEach(user -> {
                 if(!user.getUsername().equals(myUser.getUsername())) // solo se l'utente è diverso da me
@@ -35,12 +35,12 @@ public class TaskListUsers implements Callable<String> {
                 }
             });
             // formattazione output
-            result = new StringBuilder(" Utenti     |        Tags   \n---------------------------\n");
+            result = new StringBuilder("    List Users             \n");
+            result.append(" Utenti     |        Tags   \n---------------------------\n");
             for (User u: resultList) {
                 result.append(u.toString());
             }
         }
-        resultList.forEach(System.out::println);
 
         return result.toString();
     }
