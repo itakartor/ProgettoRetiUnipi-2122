@@ -35,6 +35,11 @@ public class User {
     {
         this.myPost.add(post);
     }
+
+    public String getIdUser() {
+        return idUser;
+    }
+
     public Set<Post> getMyPost() {
         return myPost;
     }

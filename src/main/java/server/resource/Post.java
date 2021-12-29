@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class Post {
-    private static String idPost;
+    private String idPost;
     private String title;
     private String contenuto;
     private Integer positiveVote;

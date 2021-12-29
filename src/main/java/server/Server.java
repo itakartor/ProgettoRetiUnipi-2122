@@ -137,10 +137,22 @@ public class Server {
                         // MEGA SWOTHC DELLA MORTE CON I FULMINI
                         String output = null; // stringa da modificare per rispondere al client
                         String input = leggiCanale(selector, key);
+                        StringTokenizer st = null;
+                        String tokenComando = "";
+                        if(!input.contains("post"))
+                        {
+                            st = new StringTokenizer(input);
+                            tokenComando = st.nextToken();// dovrebbe avere la stringa del comando
+                        }
+                        else // ci sono 4 token: 1)comando,2)titolo,3)uno spazio,4)contenuto
+                        {
+                            st = new StringTokenizer(input,"\"");
+                            tokenComando = st.nextToken();
+                            tokenComando = tokenComando.substring(0,tokenComando.length()-1);
+                        }
 
-                        StringTokenizer st = new StringTokenizer(input);
-                        String tokenComando = st.nextToken();// dovrebbe avere la stringa del comando
 
+                        System.out.println("questo è il token del comando: "+tokenComando);
                         ByteBuffer buffer = (ByteBuffer)key.attachment();// buffer della chiave
                         switch (tokenComando)
                         {
@@ -212,9 +224,12 @@ public class Server {
                             case"post":
                             {
                                 String title = st.nextToken();
+                                st.nextToken();
                                 String content = st.nextToken();
-                                String idClient = st.nextToken();
-                                Future<String> future = service.submit(new TaskBlog(listUsersConnessi,idClient));
+
+                                String idClient = st.nextToken().substring(1); // c'e uno spazio all'inizio per la tokenizzazione diversa
+                                System.out.println("id del client parsato: " +idClient);
+                                Future<String> future = service.submit(new TaskNewPost(listUsersConnessi,idClient,title,content,remoteService.getObjectListUser()));
                                 output = future.get();
                                 break;
                             }

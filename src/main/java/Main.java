@@ -106,7 +106,14 @@ public class Main {
         ConfigField configField = UtilFile.readConfigurationServer(file);
         System.out.println(configField.toString());*/
 
-        String result = " Utenti     |        Tags   \n---------------------------\n";
-        System.out.print(result);
+        /*String result = " Utenti     |        Tags   \n---------------------------\n";
+        System.out.print(result);*/
+        Scanner key = new Scanner(System.in);
+        String input = key.nextLine();
+        StringTokenizer st = new StringTokenizer(input, "\"");
+        while(st.hasMoreTokens())
+        {
+            System.out.println(st.nextToken());
+        } // post "new post incoming" "content is good"
     }
 }
