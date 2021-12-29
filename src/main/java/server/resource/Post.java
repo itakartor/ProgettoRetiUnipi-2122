@@ -1,17 +1,19 @@
 package server.resource;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 public class Post {
-    private String idPost;
-    private String title;
-    private String contenuto;
+    private final String idPost; // è pensato come la concatenazione dell'id dell'utente + il numero della dimensione della lista dei post
+    private final String title;
+    private final String contenuto;
     private Integer positiveVote;
     private Integer negativeVote;
-    private String idAutore;
+    private final String idAutore;
     private Set<User> rewinUser;
+    private ArrayList<String> comments;
 
     public Post(String idPost, String title, String contenuto, String idAutore) {
         this.idPost = idPost;
@@ -21,6 +23,11 @@ public class Post {
         this.negativeVote = 0;
         this.idAutore = idAutore;
         this.rewinUser = new HashSet<>();
+        this.comments = new ArrayList<>();
+    }
+
+    public String getIdPost() {
+        return idPost;
     }
 
     @Override
@@ -30,5 +37,16 @@ public class Post {
         result.append("\n");
         return result.toString();
     }
+    public String toStringShowPost() {
+        StringBuilder result = new StringBuilder("Titolo: "+this.title +"\n");
+        result.append("Contenuto: ").append(this.contenuto).append("\n");
+        result.append("Voti: ").append(this.positiveVote).append(" positivi, ").append(this.negativeVote).append(" negativi \n");
+        result.append("Commenti: ").append(this.comments.size()).append("\n");
+        return result.toString();
+    }
+    /*Titolo: Post di prova
+        < Contenuto: Questo è un post di prova
+        < Voti: 0 positivi, 0 negativi
+            < Commenti: 0*/
 
 }

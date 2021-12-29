@@ -13,6 +13,7 @@ public class User {
     private final Set<User> followings;
     private final Set<User> followers;
     private final Set<Post> myPost;
+    private final Set<Post> postsFeed;
     private final Set<Post> rewinPost;
 
     public String getUsername()
@@ -27,6 +28,7 @@ public class User {
         this.followers = new HashSet<>();
         this.followings = new HashSet<>();
         this.myPost = new HashSet<>();
+        this.postsFeed = new HashSet<>();
         this.rewinPost = new HashSet<>();
         this.seed = seed;
         this.hashPassword = hashPassword;
@@ -35,9 +37,17 @@ public class User {
     {
         this.myPost.add(post);
     }
+    public void addPostFeed(Post post)
+    {
+        this.postsFeed.add(post);
+    }
 
     public String getIdUser() {
         return idUser;
+    }
+
+    public Set<Post> getPostsFeed() {
+        return postsFeed;
     }
 
     public Set<Post> getMyPost() {

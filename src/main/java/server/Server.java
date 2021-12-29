@@ -139,18 +139,16 @@ public class Server {
                         String input = leggiCanale(selector, key);
                         StringTokenizer st = null;
                         String tokenComando = "";
-                        if(!input.contains("post"))
+                        st = new StringTokenizer(input);
+                        tokenComando = st.nextToken();// dovrebbe avere la stringa del comando
+
+                        if(tokenComando.equals("post"))// ci sono 4 token: 1)comando,2)titolo,3)uno spazio,4)contenuto
                         {
-                            st = new StringTokenizer(input);
-                            tokenComando = st.nextToken();// dovrebbe avere la stringa del comando
-                        }
-                        else // ci sono 4 token: 1)comando,2)titolo,3)uno spazio,4)contenuto
-                        {
+                            System.out.println("sono nel ramo else");
                             st = new StringTokenizer(input,"\"");
                             tokenComando = st.nextToken();
                             tokenComando = tokenComando.substring(0,tokenComando.length()-1);
                         }
-
 
                         System.out.println("questo è il token del comando: "+tokenComando);
                         ByteBuffer buffer = (ByteBuffer)key.attachment();// buffer della chiave
@@ -233,6 +231,30 @@ public class Server {
                                 output = future.get();
                                 break;
                             }
+                            case"show":
+                            {
+                                switch (st.nextToken())
+                                {
+                                    case"post":
+                                    {
+                                        String idPost = st.nextToken();
+                                        String idClient = st.nextToken();
+
+                                        Future<String> future = service.submit(new TaskShowPost(listUsersConnessi,idClient,idPost));
+                                        output = future.get();
+                                        break;
+                                    }
+                                    case"feed":
+                                    {
+                                        String idClient = st.nextToken();
+                                        Future<String> future = service.submit(new TaskShowFeed(listUsersConnessi,idClient));
+                                        output = future.get();
+                                        break;
+                                    }
+
+                                }
+                                break;
+                            }
                             default:
                             {
                                 output = "Comando non riconosciuto";
@@ -246,13 +268,14 @@ public class Server {
                         scritturaCanale(selector, key);//scrive il contenuto
                     }
                 } catch (IOException ex) {
+
                     key.cancel();
                     try {
                         key.channel().close();
                     } catch (IOException cex) {
                         cex.printStackTrace();
                     }
-                } catch (ExecutionException | InterruptedException e) {
+                } catch (ExecutionException | InterruptedException | NoSuchElementException e) {
                     e.printStackTrace();
                 }
             }
