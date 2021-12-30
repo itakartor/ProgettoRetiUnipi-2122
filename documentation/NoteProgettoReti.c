@@ -77,3 +77,25 @@ Oggetti:
 
 
 Schema OneNote: https://unipiit-my.sharepoint.com/:o:/g/personal/c_vitiello6_studenti_unipi_it/En60zfZYjpZPn7rKglzqFvQBGaz6IyoiB6FuIHxr7VLv_w
+
+
+
+
+-Register utente -> usage- register <USERNAME> <PASSWORD> <TAG1> [<TAG2>] [<TAG3>] [<TAG4>] [<TAG5>]
+Controlli:
+-usarname vuoto // non verificabile
+-password vuota // non verificabile
+-password non rispetta i requisiti -> password almeno 8 caratteri
+-minimo 1 tags
+-massimo 5 tags 
+-username univoco 
+
+
+Cosa manca:
+-parte grossa del follower e del to follow
+-Wallet
+-cacchiate sui post
+-controllare errori vari ed eventuali: per esempio se l'utente si dimentica dei parametri
+
+
+
