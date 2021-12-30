@@ -3,9 +3,7 @@ package GestioneJson;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.testcontainers.shaded.com.google.common.io.Files;
-import server.resource.ListUser;
-import server.resource.ListUserLight;
-import server.resource.User;
+import server.resource.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,7 +44,7 @@ public class CreatoreJson {
 
         return 0; // ho creato il file
     }
-        public static boolean AggiornametoFileUsers(String pathFile, String nameFile, Set<User> listUser) throws IOException {
+    public static boolean AggiornametoFileUsers(String pathFile, String nameFile, Set<User> listUser) throws IOException {
             if(pathFile == null || nameFile == null)
             {
                 System.out.println("[ERROR]: Configurazione nella Creazione file json nulla");
@@ -77,25 +75,47 @@ public class CreatoreJson {
 
             buffer.put(gson.toJson(listUserLight).getBytes(StandardCharsets.UTF_8));
 
-            /*buffer.put("\"listUsers\":[".getBytes(StandardCharsets.UTF_8));
-            int i = 0;
-            for(User user : listUsers) {
-                i++;
-                buffer.put(gson.toJson(user).getBytes(StandardCharsets.UTF_8));
-                if(i < listUsers.size())
-                    buffer.put(",".getBytes(StandardCharsets.UTF_8));
-            }
-            buffer.put("],".getBytes(StandardCharsets.UTF_8));
-
-            buffer.put("\"timeStamp\":".getBytes(StandardCharsets.UTF_8));
-            buffer.put("\"".getBytes(StandardCharsets.UTF_8));
-            buffer.put(new SimpleDateFormat("dd/MM/yyyy").format(new Date()).getBytes(StandardCharsets.UTF_8));
-            buffer.put("\"".getBytes(StandardCharsets.UTF_8));*/
-
             buffer.flip();
             fc.write(buffer);
             buffer.clear();
             return true;
+    }
+    public static boolean AggiornametoFilePost(String pathFile, String nameFile, Set<Post> listPost) throws IOException {
+        if(pathFile == null || nameFile == null)
+        {
+            System.out.println("[ERROR]: Configurazione nella Creazione file json nulla");
+            return false;
         }
+        FileOutputStream fout = new FileOutputStream( pathFile + "/" +nameFile + ".json");
+        FileChannel fc = fout.getChannel();
+
+        ByteBuffer buffer = ByteBuffer.allocateDirect(500000);
+
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .create();
+        /*
+         * {
+         *   [
+         *       {
+         *           infoUtente1
+         *       },
+         *       {
+         *           infoUtente2
+         *      }
+         *   ],
+         *   timeStamp
+         * }*/
+
+        ListPostLight listPostLight = new ListPostLight(listPost,new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+
+
+        buffer.put(gson.toJson(listPostLight).getBytes(StandardCharsets.UTF_8));
+
+        buffer.flip();
+        fc.write(buffer);
+        buffer.clear();
+        return true;
+    }
 
 }

@@ -23,7 +23,7 @@ public class TaskRegister implements Callable<Boolean> {
         this.lock = this.listUser.getLock();
     }
 
-    @Override
+    @Override // in caso che la lista sia null per vari problemi di file andrebbe cancellato il file e ricreato, ma non so se sia possibile
     public Boolean call() {
         // faccio i controlli se esiste l'username
         // se esiste la password
@@ -78,10 +78,14 @@ public class TaskRegister implements Callable<Boolean> {
                     break;
                 }
             }
-            if(password.length()<6) // controllo i requisiti minimi
+            if(password != null)
             {
-                ok = false;
+                if(password.length()<6) // controllo i requisiti minimi
+                {
+                    ok = false;
+                }
             }
+
             if(!ok)
                 this.lock.unlock();
         }

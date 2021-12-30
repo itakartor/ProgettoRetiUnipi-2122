@@ -1,0 +1,15 @@
+{
+  "listPost": [
+    {
+      "idPost": "10",
+      "title": "carmine ￃﾨ bello",
+      "contenuto": "perchￃﾨ ha un gran cervello",
+      "positiveVote": 0,
+      "negativeVote": 0,
+      "idAutore": "1",
+      "rewinUser": [],
+      "comments": []
+    }
+  ],
+  "timeStamp": "30/12/2021"
+}

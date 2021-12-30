@@ -1,25 +1,26 @@
 package server.registerRMI;
 
 import GestioneJson.CreatoreJson;
-import server.resource.ListUser;
-import server.resource.ListUserLight;
-import server.resource.User;
+import server.resource.*;
 
 import java.io.IOException;
-import java.util.Set;
 
 public class TaskSave implements Runnable {
     private final Integer msDelay;
     private final String pathFile;
-    private final String fileName;
+    private final String fileNameUsers;
+    private final String fileNamePosts;
     private final ListUser listUsers;
+    private final ListPost listPost;
 
 
-    public TaskSave(Integer msDelay, String pathFile, String fileName, ListUser listUsers) {
+    public TaskSave(Integer msDelay, String pathFile, String fileNameUsers, String fileNamePosts, ListUser listUsers, ListPost listPost) {
         this.msDelay = msDelay;
         this.pathFile = pathFile;
-        this.fileName = fileName;
+        this.fileNameUsers = fileNameUsers;
+        this.fileNamePosts = fileNamePosts;
         this.listUsers = listUsers;
+        this.listPost = listPost;
     }
 
     @Override
@@ -31,9 +32,21 @@ public class TaskSave implements Runnable {
                 System.out.println(Thread.currentThread().getName() + " variabile modify " + listUsers.isModified());
                 if(this.listUsers.isModified())
                 {
-                    CreatoreJson.AggiornametoFileUsers(this.pathFile,this.fileName,listUsers.getListUser());
+
+                    if(CreatoreJson.AggiornametoFileUsers(this.pathFile,this.fileNameUsers,listUsers.getListUser()))
+                    {
+                        System.out.println("[SERVER]:aggiornamento file users json terminato con successo");
+                    }
                     this.listUsers.setModified(false);
 
+                }
+                if(this.listPost.isModified())
+                {
+                    if(CreatoreJson.AggiornametoFilePost(this.pathFile,this.fileNamePosts,listPost.getListPost()))
+                    {
+                        System.out.println("[SERVER]:aggiornamento file posts json terminato con successo");
+                    }
+                    this.listPost.setListPostModified(false);
                 }
             } catch (InterruptedException | IOException e) {
                 e.printStackTrace();

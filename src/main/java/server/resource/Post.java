@@ -2,18 +2,17 @@ package server.resource;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 public class Post {
     private final String idPost; // è pensato come la concatenazione dell'id dell'utente + il numero della dimensione della lista dei post
     private final String title;
     private final String contenuto;
-    private Integer positiveVote;
-    private Integer negativeVote;
+    private final Integer positiveVote;
+    private final Integer negativeVote;
     private final String idAutore;
-    private Set<User> rewinUser;
-    private ArrayList<String> comments;
+    private final Set<String> rewinUser; // id user di chi rewin il post
+    private final ArrayList<String> comments;
 
     public Post(String idPost, String title, String contenuto, String idAutore) {
         this.idPost = idPost;
@@ -30,6 +29,10 @@ public class Post {
         return idPost;
     }
 
+    public String getIdAutore() {
+        return idAutore;
+    }
+
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder(this.idPost + "     |     ");
@@ -44,6 +47,7 @@ public class Post {
         result.append("Commenti: ").append(this.comments.size()).append("\n");
         return result.toString();
     }
+
     /*Titolo: Post di prova
         < Contenuto: Questo è un post di prova
         < Voti: 0 positivi, 0 negativi

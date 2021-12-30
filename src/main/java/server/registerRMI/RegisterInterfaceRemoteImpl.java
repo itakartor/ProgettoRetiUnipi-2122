@@ -31,12 +31,12 @@ public class RegisterInterfaceRemoteImpl implements RegisterInterfaceRemote{
         switch (CreatoreJson.creazioneFile(pathFile,nameFile))
         {
             case 0:
-                System.out.println("[SERVER]: File json è stato creato con successo");
+                System.out.println("[SERVER]: File json "+nameFile+" è stato creato con successo");
                 break;
             case 1:
-                System.out.println("[SERVER]: File json gia esistente");
+                System.out.println("[SERVER]: File json "+nameFile+" gia esistente lettura in atto");
                 // devo leggere il file
-                ListUserLight supportList = LeggiJson.LetturaFile(pathFile,nameFile);
+                ListUserLight supportList = LeggiJson.LetturaFileUsers(pathFile,nameFile);
                 if(supportList != null)
                 {
                     this.listUser.setListUser(supportList.getListUsers());
@@ -47,7 +47,7 @@ public class RegisterInterfaceRemoteImpl implements RegisterInterfaceRemote{
                     System.out.println("[SERVER]: file " +nameFile +" vuoto");
                 break;
             case -1:
-                System.out.println("[ERROR]: Creazione File json fallita");
+                System.out.println("[ERROR]: Creazione File "+nameFile+" json fallita");
                 break;
         }
     }

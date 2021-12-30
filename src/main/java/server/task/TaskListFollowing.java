@@ -1,6 +1,7 @@
 package server.task;
 
 import server.resource.ListUsersConnessi;
+import server.resource.Post;
 import server.resource.User;
 
 import java.util.HashSet;
@@ -22,15 +23,22 @@ public class TaskListFollowing implements Callable<String> {
     public String call(){
         StringBuilder result = new StringBuilder("[SERVER]:Richiesta list following fallita");
         User myUser = this.listUsersConnessi.getListClientConnessi().get(idClient);
-        Set<User> resultList = new HashSet<>();
+        Set<User> resultList;
         if(myUser != null) // se l'utente fosse loggato
         {
             resultList = myUser.getFollowings(); // ritorno gli utenti che myUser segue
             // formattazione output
             result = new StringBuilder("    List Following         \n");
             result.append(" Utenti     |        Tags   \n---------------------------\n");
-            for (User u: resultList) {
-                result.append(u.toString());
+            if(resultList.isEmpty())
+            {
+                result.append("         Non hai following        ");
+            }
+            else
+            {
+                for (User p: resultList) {
+                    result.append(p.toString());
+                }
             }
         }
         return result.toString();

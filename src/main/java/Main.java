@@ -1,26 +1,11 @@
-import GestioneJson.CreatoreJson;
-import GestioneJson.LeggiJson;
-import client.Client;
-import config.ConfigField;
-import server.resource.ListUser;
-import server.resource.User;
-import util.UtilFile;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Main {
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void main(String[] args) throws IOException, ParseException, InterruptedException {
         /*ExecutorService service = Executors.newCachedThreadPool();
         for (int i = 0; i < 1; i++) {
             service.submit(new Client());
@@ -108,12 +93,101 @@ public class Main {
 
         /*String result = " Utenti     |        Tags   \n---------------------------\n";
         System.out.print(result);*/
-        Scanner key = new Scanner(System.in);
+        /*Scanner key = new Scanner(System.in);
         String input = key.nextLine();
         StringTokenizer st = new StringTokenizer(input, "\"");
         while(st.hasMoreTokens())
         {
             System.out.println(st.nextToken());
-        } // post "new post incoming" "content is good"
+        } // post "new post incoming" "content is good"*/
+
+        // ConcurrentHashMap<String,Integer> map = new ConcurrentHashMap<>();
+
+        /*Set <Integer> penNameSet = ConcurrentHashMap.newKeySet();
+        penNameSet.add(0);*/
+        /*ReentrantLock lock = new ReentrantLock();
+        Set<Integer> listInt = new HashSet<>();//Collections.synchronizedSet(new HashSet<>());
+        listInt.add(0);
+        ListNuovo listNuovo = new ListNuovo(lock);
+        Thread t1 = new Thread(new TaskP(listInt));
+        Thread t2 = new Thread(new TaskP(listInt));
+        t1.start();
+        t2.start();
+
+        Thread.sleep(11000);
+        System.out.println(listInt);*/
+
     }
 }
+/*
+
+class TaskP implements Runnable{
+    private Set<Integer>  listInteger;
+    public TaskP(Set<Integer> listInteger) {
+        this.listInteger = listInteger;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 10; i++) {
+            Integer var = listInteger.stream().max(Integer::compare).get() + (int)Thread.currentThread().getId();
+            var++;
+            System.out.println(Thread.currentThread().getName()+" " + var);
+            listInteger.add(var);
+            System.out.println(Thread.currentThread().getName()+ " " + listInteger);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+        System.out.println(listInteger);
+    }
+}
+
+
+class TaskP2 implements Runnable{
+    public static ListNuovo listNuovo;
+    public TaskP2(ListNuovo listNuovo) {
+        TaskP2.listNuovo = listNuovo;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 5; i++) {
+            listNuovo.getLock().lock();
+            Integer var = listNuovo.getPenNameSet().stream().min(Integer::compare).get() + i;
+            var++;
+            System.out.println(Thread.currentThread().getName()+" " + var);
+            listNuovo.getPenNameSet().add(var);
+            System.out.println(Thread.currentThread().getName()+ " " + listNuovo.getPenNameSet());
+            try {
+                listNuovo.getLock().unlock();
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+        System.out.println(listNuovo.getPenNameSet());
+    }
+}
+class ListNuovo{
+    public Set <Integer> penNameSet;
+    public ReentrantLock lock;
+
+    public ListNuovo(ReentrantLock lock) {
+        this.penNameSet = new HashSet<>();
+        this.penNameSet.add(0);
+        this.lock = lock;
+    }
+
+    public Set<Integer> getPenNameSet() {
+        return penNameSet;
+    }
+
+    public ReentrantLock getLock() {
+        return lock;
+    }
+}*/

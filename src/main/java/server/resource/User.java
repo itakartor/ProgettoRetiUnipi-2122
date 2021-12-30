@@ -12,14 +12,7 @@ public class User {
     private final String seed;
     private final Set<User> followings;
     private final Set<User> followers;
-    private final Set<Post> myPost;
-    private final Set<Post> postsFeed;
     private final Set<Post> rewinPost;
-
-    public String getUsername()
-    {
-        return this.username;
-    }
 
     public User(String username, Set<String> tags, Integer idUser, String hashPassword, String seed) {
         this.username = username;
@@ -27,31 +20,18 @@ public class User {
         this.tags = tags;
         this.followers = new HashSet<>();
         this.followings = new HashSet<>();
-        this.myPost = new HashSet<>();
-        this.postsFeed = new HashSet<>();
         this.rewinPost = new HashSet<>();
         this.seed = seed;
         this.hashPassword = hashPassword;
     }
-    public void addPost(Post post)
+
+    public String getUsername()
     {
-        this.myPost.add(post);
-    }
-    public void addPostFeed(Post post)
-    {
-        this.postsFeed.add(post);
+        return this.username;
     }
 
     public String getIdUser() {
         return idUser;
-    }
-
-    public Set<Post> getPostsFeed() {
-        return postsFeed;
-    }
-
-    public Set<Post> getMyPost() {
-        return myPost;
     }
 
     public Set<User> getFollowings() { // ritorno gli utenti che seguo

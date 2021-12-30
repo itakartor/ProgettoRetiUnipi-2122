@@ -37,8 +37,15 @@ public class TaskListUsers implements Callable<String> {
             // formattazione output
             result = new StringBuilder("    List Users             \n");
             result.append(" Utenti     |        Tags   \n---------------------------\n");
-            for (User u: resultList) {
-                result.append(u.toString());
+            if(resultList.isEmpty())
+            {
+                result.append("         Non hai nuovi users con tag in comune        ");
+            }
+            else
+            {
+                for (User p: resultList) {
+                    result.append(p.toString());
+                }
             }
         }
 

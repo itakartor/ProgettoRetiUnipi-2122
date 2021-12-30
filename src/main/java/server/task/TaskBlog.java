@@ -1,5 +1,6 @@
 package server.task;
 
+import server.resource.ListPost;
 import server.resource.ListUsersConnessi;
 import server.resource.Post;
 import server.resource.User;
@@ -11,10 +12,12 @@ import java.util.concurrent.Callable;
 public class TaskBlog implements Callable<String> {
     private final ListUsersConnessi listUsersConnessi;
     private final String idClient;
+    private final ListPost listPost;
 
-    public TaskBlog(ListUsersConnessi listUsersConnessi, String idClient) {
+    public TaskBlog(ListUsersConnessi listUsersConnessi, String idClient, ListPost listPost) {
         this.listUsersConnessi = listUsersConnessi;
         this.idClient = idClient;
+        this.listPost = listPost;
     }
 
     @Override
@@ -24,13 +27,26 @@ public class TaskBlog implements Callable<String> {
         Set<Post> resultList = new HashSet<>();
         if(myUser != null) // se l'utente fosse loggato
         {
-            resultList = myUser.getMyPost();
+            for (Post p: listPost.getListPost()) {
+                if(p.getIdAutore().equals(myUser.getIdUser()))
+                {
+                    resultList.add(p);
+                }
+            }
             // formattazione output
             result = new StringBuilder("    My Blog                \n");
             result.append(" Id Post    |       Titolo  \n---------------------------\n");
-            for (Post p: resultList) {
-                result.append(p.toString());
+            if(resultList.isEmpty())
+            {
+               result.append("         Non hai posts        ");
             }
+            else
+            {
+                for (Post p: resultList) {
+                    result.append(p.toString());
+                }
+            }
+
         }
 
         return result.toString();

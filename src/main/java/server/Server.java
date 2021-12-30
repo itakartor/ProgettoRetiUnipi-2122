@@ -4,6 +4,7 @@ import config.ConfigField;
 import server.registerRMI.RegisterInterfaceRemote;
 import server.registerRMI.RegisterInterfaceRemoteImpl;
 import server.registerRMI.TaskSave;
+import server.resource.ListPost;
 import server.resource.ListUsersConnessi;
 import server.task.*;
 import util.UtilFile;
@@ -33,7 +34,8 @@ public class Server {
     private static final ListUsersConnessi listUsersConnessi = new ListUsersConnessi(); // associa gli id dei client con gli utenti loggati
     private static final String pathFileConfig ="C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\src\\main\\java\\config\\serverConfig.txt";
     private static final String pathFile = "C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\documentation";
-    private static final String nameFile = "users";
+    private static final String nameFileUsers = "users";
+    private static final String nameFilePosts = "posts";
     public static void main(String[] args) throws IOException {
         //LISTA UTENTI
         /*Set<User> listUser = new HashSet<>();//metodo per ricaricare gli utenti dal file json
@@ -45,11 +47,17 @@ public class Server {
         Integer counterUser = listUser.size();*/
         ConfigField configServer = UtilFile.readConfigurationServer(pathFileConfig); // legge la configurazione ma non la applica
 
-        //parte RMI
+        ListPost listPost = new ListPost();
+        // infatti voglio che la lista sia unica per evitare continue modifiche in tutti gli utenti
+        // ed evitare problemi di sincronizzazione attraverso operazioni come voto, commento o delete
+
+
+        // parte RMI
         /* Creazione di un'istanza dell'oggetto EUStatsService */
         RegisterInterfaceRemoteImpl remoteService = new RegisterInterfaceRemoteImpl();
         // thread dedito al salvataggio della lista con i vari cambiamenti, in modo tale da evitare sprechi
-        Thread threadSave = new Thread(new TaskSave(configServer.getMsTimeout(),pathFile,nameFile,remoteService.getObjectListUser()));
+        Thread threadSave = new Thread(new TaskSave(configServer.getMsTimeout(),pathFile, nameFileUsers, nameFilePosts, remoteService.getObjectListUser(), listPost));
+        threadSave.setDaemon(true);
         threadSave.start();
         /* Esportazione dell'Oggetto */
         RegisterInterfaceRemote stub = (RegisterInterfaceRemote)
@@ -137,8 +145,8 @@ public class Server {
                         // MEGA SWOTHC DELLA MORTE CON I FULMINI
                         String output = null; // stringa da modificare per rispondere al client
                         String input = leggiCanale(selector, key);
-                        StringTokenizer st = null;
-                        String tokenComando = "";
+                        StringTokenizer st;
+                        String tokenComando;
                         st = new StringTokenizer(input);
                         tokenComando = st.nextToken();// dovrebbe avere la stringa del comando
 
@@ -202,6 +210,10 @@ public class Server {
                                         // System.out.println(output);
                                         break;
                                     }
+                                    default:
+                                    {
+                                        output="[ERROR]:lista non trovata";
+                                    }
                                 }
                                 break;
                             }
@@ -215,7 +227,7 @@ public class Server {
                             case"blog":
                             {
                                 String idClient = st.nextToken();
-                                Future<String> future = service.submit(new TaskBlog(listUsersConnessi,idClient));
+                                Future<String> future = service.submit(new TaskBlog(listUsersConnessi,idClient, listPost));
                                 output = future.get();
                                 break;
                             }  // post <title> <content>.
@@ -227,7 +239,7 @@ public class Server {
 
                                 String idClient = st.nextToken().substring(1); // c'e uno spazio all'inizio per la tokenizzazione diversa
                                 System.out.println("id del client parsato: " +idClient);
-                                Future<String> future = service.submit(new TaskNewPost(listUsersConnessi,idClient,title,content,remoteService.getObjectListUser()));
+                                Future<String> future = service.submit(new TaskNewPost(listUsersConnessi,idClient,title,content, listPost));
                                 output = future.get();
                                 break;
                             }
@@ -240,19 +252,30 @@ public class Server {
                                         String idPost = st.nextToken();
                                         String idClient = st.nextToken();
 
-                                        Future<String> future = service.submit(new TaskShowPost(listUsersConnessi,idClient,idPost));
+                                        Future<String> future = service.submit(new TaskShowPost(listUsersConnessi,idClient,idPost, listPost));
                                         output = future.get();
                                         break;
                                     }
                                     case"feed":
                                     {
                                         String idClient = st.nextToken();
-                                        Future<String> future = service.submit(new TaskShowFeed(listUsersConnessi,idClient));
+                                        Future<String> future = service.submit(new TaskShowFeed(listUsersConnessi,idClient, listPost));
                                         output = future.get();
                                         break;
                                     }
-
+                                    default:
+                                    {
+                                        output="[ERROR]:Comando errato";
+                                    }
                                 }
+                                break;
+                            }
+                            case"delete":
+                            {
+                                String idPost = st.nextToken();
+                                String idClient = st.nextToken();
+                                Future<String> future = service.submit(new TaskShowFeed(listUsersConnessi,idClient, listPost));
+                                output = future.get();
                                 break;
                             }
                             default:
@@ -262,6 +285,10 @@ public class Server {
                             }
                         }
                         // meccanismo di risposta al client
+                        if (output == null)
+                        {
+                            output = "[ERROR]:OUTPUT NULL";
+                        }
                         buffer.put(output.getBytes(StandardCharsets.UTF_8));
                         buffer.flip();
                     }else if(key.isWritable()){
