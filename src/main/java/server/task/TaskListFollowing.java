@@ -23,10 +23,16 @@ public class TaskListFollowing implements Callable<String> {
     public String call(){
         StringBuilder result = new StringBuilder("[SERVER]:Richiesta list following fallita");
         User myUser = this.listUsersConnessi.getListClientConnessi().get(idClient);
-        Set<User> resultList;
+        Set<User> resultList = new HashSet<>();
         if(myUser != null) // se l'utente fosse loggato
         {
-            resultList = myUser.getFollowings(); // ritorno gli utenti che myUser segue
+            for (User u: listUser) { // recupero tutti i following
+                if(myUser.getFollowings().contains(u.getIdUser())) // verifico se il suo id è contenuto nella lista
+                {
+                    resultList.add(u);
+                }
+            }
+            // ritorno gli utenti che myUser segue
             // formattazione output
             result = new StringBuilder("    List Following         \n");
             result.append(" Utenti     |        Tags   \n---------------------------\n");

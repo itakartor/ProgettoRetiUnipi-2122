@@ -1,8 +1,6 @@
 package client;
 
-import jdk.swing.interop.SwingInterOpUtils;
 import server.registerRMI.RegisterInterfaceRemote;
-import server.registerRMI.RegisterInterfaceRemoteImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,37 +13,33 @@ import java.nio.charset.StandardCharsets;
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+
 import java.util.concurrent.ExecutionException;
 
-public class Client implements Runnable {
+public class Client{
 
     public static int DEFAULT_PORT = 1919;
     public static int DEFAULT_PORT_RMI = 6666;
     private static final String ADDRESS = "localhost";
     private static final String SERVER_NAME = "REMOTE-SERVER";
-    private static final int BUFFER_SIZE = 1024;
+    private static final int BUFFER_SIZE = 5000;
     public static void main(String[] args) {
-        //configurazione iniziale del client: porta, addres e buffSize
-        int port;
-        String ip;
+        // configurazione iniziale del client: porta, addres e buffSize
+        int port = DEFAULT_PORT;
+        String ip = ADDRESS;
         int portRMI = DEFAULT_PORT_RMI;
+
+
         RegisterInterfaceRemote remoteService = null;
-        if (args.length < 2) {
-            port = DEFAULT_PORT;
-            ip = ADDRESS;
-        } else {
-            port = Integer.parseInt(args[1]);
-            ip = args[2];
-        }
 
-        System.out.println("Using port " + port);
+        // System.out.println("Using port " + port);
 
-        BufferedReader input; //
+        BufferedReader input;
         ByteBuffer buffer; // lettura/scrittura comunicazione con il server
-        //fine configurazione iniziale
+        // fine configurazione iniziale
 
         try {
-            //inizio configurazione RMI
+            // inizio configurazione RMI
             Remote remoteObject;
             try {
                 Registry r = LocateRegistry.getRegistry(portRMI);
@@ -72,14 +66,20 @@ public class Client implements Runnable {
                 StringBuilder response = new StringBuilder();// uso la stringbuilder così da poterci fare l'append
                 System.out.println("[CONSOLE]: Inserisci un comando");
                 message = input.readLine(); // leggo qualcosa da tastiera
+                // System.out.println(message.length());
+                if(message.length() == 0) // controllo se il comando è vuoto in caso faccio rinserire il comando
+                {
+                    System.out.println("[CONSOLE]: Si prega di non inserire una linea senza caratteri");
+                    continue;
+                }
                 if(message.contains("register"))// qui voglio controllare solo se è un comando register
                 {                               // i controlli sui campi della registrazione li faccio nel RMI
                                                 // perchè vorrei dare la possibilità a più persone di implementare
                                                 // un client con delle API
-                    assert remoteService != null;
-                    if(remoteService.register(message))
-                    {
-                        System.out.println("[Client]: registrazione avvenuta con successo");
+                    assert remoteService != null; // se l'oggetto remoto non esiste muore il client
+                    if(remoteService.register(message)) // chiama il metodo dall'interfaccia remota
+                    {                                   // e verifica se la registrazione è uandata a buon fine
+                        System.out.println("[CLIENT]: registrazione avvenuta con successo");
                     }
                     else
                     {
@@ -88,7 +88,7 @@ public class Client implements Runnable {
                 }
                 else
                 {
-                    if(message.contains("!quit")){ // se il messaggio è !quit chiudo la comunicazione in caso per disconnessione
+                    if(message.contains("!quit")){ // se il messaggio è !quit chiudo la comunicazione in caso per disconnessione del client
                         buffer.put("!quit".getBytes());
                         buffer.flip();
                         client.write(buffer);
@@ -96,33 +96,26 @@ public class Client implements Runnable {
                         break;
                     }
 
-                    buffer.put(message.getBytes(StandardCharsets.UTF_8)); //metto il messaggio nel buffer
+                    buffer.put(message.getBytes(StandardCharsets.UTF_8)); // metto il messaggio nel buffer
                     buffer.flip();
                     // System.out.println("valore buffer remaining: "+buffer.hasRemaining());
-                    while(buffer.hasRemaining()) client.write(buffer); //fino a quando c'è qualcosa scrivi
+                    while(buffer.hasRemaining()) client.write(buffer); // fino a quando c'è qualcosa scrivi
                     /*buffer.flip();
                     StringBuilder inputString = new StringBuilder();
                     while (buffer.hasRemaining()) inputString.append((char) buffer.get());
                     System.out.println("buffer con messaggio da inviare: " + inputString);*/
-                    buffer.clear();
+                    buffer.clear(); // pulisco il buffer
                     // System.out.println("[SCRITTURA CLIENT]: "+ message );
 
-                    client.read(buffer); //aspetto di leggere la risposta del server
+                    client.read(buffer); // aspetto di leggere la risposta del server bloccante
 
                     buffer.flip();
-                    while (buffer.hasRemaining()) response.append((char)buffer.get()); //riprendo eventuali cose che non ho letto
-                    System.out.println(response);
+                    while (buffer.hasRemaining()) response.append((char)buffer.get()); // riprendo eventuali cose che non ho letto
+                    System.out.println(response); // scrivo la risposta
                     buffer.clear();
 
                 }
-
-                //Thread.sleep(5000);
             }
         } catch(IOException | InterruptedException | ExecutionException ex) { ex.printStackTrace(); }
-    }
-
-    @Override
-    public void run() {
-
     }
 }

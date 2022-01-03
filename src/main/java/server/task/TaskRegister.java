@@ -71,7 +71,7 @@ public class TaskRegister implements Callable<Boolean> {
             // se tutti i controlli specifici sui campi sono andati a buon fine
 
             this.lock.lock();
-            for(User u : this.listUser.getListUser())
+            for(User u : this.listUser.getListUser()) // controllo se l'utente è gia registato
             {
                 if (u.getUsername().equals(username)) {
                     ok = false;

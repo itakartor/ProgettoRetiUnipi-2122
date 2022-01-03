@@ -33,7 +33,7 @@ public class TaskLogin implements Callable<String> {
         Map<String,User> map = listClientConnessi.getListClientConnessi();
         if(listUsers != null)
         {
-            for (User u: listUsers) {
+            for (User u: listUsers) { // controlla se l'utente è registrato
                 if(u.getUsername().equals(username))
                 {
                     seed = u.getSeed();
@@ -57,9 +57,9 @@ public class TaskLogin implements Callable<String> {
                     if(seed == null) // l'utente non è registrato
                     {
                         output ="[SERVER]:Login fallito User non registrato";
-                    }else if(map.get(clientId) != null) // l'utente è gia loggato
+                    }else if(map.get(clientId) != null) // il client è gia loggato
                     {
-                        output = "[SERVER]:Login fallito User gia loggato";
+                        output = "[SERVER]:Login fallito Client gia loggato";
                     }
                     else // controllo se la password fosse corretta
                     {

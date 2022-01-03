@@ -6,6 +6,8 @@ import server.registerRMI.RegisterInterfaceRemoteImpl;
 import server.registerRMI.TaskSave;
 import server.resource.ListPost;
 import server.resource.ListUsersConnessi;
+import server.resource.Post;
+import server.resource.User;
 import server.task.*;
 import util.UtilFile;
 
@@ -29,88 +31,73 @@ import java.util.concurrent.Future;
 
 public class Server {
 
+    private static final int BUFFER_SIZE = 5000;
     private static final int DEFAULT_PORT = 1919; // 6666
     private static final int RegPort = 6666;
     private static final ListUsersConnessi listUsersConnessi = new ListUsersConnessi(); // associa gli id dei client con gli utenti loggati
     private static final String pathFileConfig ="C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\src\\main\\java\\config\\serverConfig.txt";
 
     public static void main(String[] args) throws IOException {
-        //LISTA UTENTI
-        /*Set<User> listUser = new HashSet<>();//metodo per ricaricare gli utenti dal file json
-        Set<String> t = new HashSet<>();
-        t.add("sport");
-        t.add("video");
-        User user = new User("carmine",t,1);
-        listUser.add(user);
-        Integer counterUser = listUser.size();*/
+
         ConfigField configServer = UtilFile.readConfigurationServer(pathFileConfig); // legge la configurazione ma non la applica
         String pathFile = configServer.getPathFile();
         String nameFilePosts = configServer.getNameFilePosts();
         String nameFileUsers = configServer.getNameFileUsers();
+        // creazione lista dei post
         ListPost listPost = new ListPost(pathFile, nameFilePosts);
         // infatti voglio che la lista sia unica per evitare continue modifiche in tutti gli utenti
         // ed evitare problemi di sincronizzazione attraverso operazioni come voto, commento o delete
 
 
         // parte RMI
-        /* Creazione di un'istanza dell'oggetto EUStatsService */
+        // Creazione di un'istanza dell'oggetto remote
         RegisterInterfaceRemoteImpl remoteService = new RegisterInterfaceRemoteImpl(pathFile,nameFileUsers);
+
         // thread dedito al salvataggio della lista con i vari cambiamenti, in modo tale da evitare sprechi
         Thread threadSave = new Thread(new TaskSave(configServer.getMsTimeout(), pathFile, nameFileUsers, nameFilePosts, remoteService.getObjectListUser(), listPost));
-        threadSave.setDaemon(true);
+        threadSave.setDaemon(true); // è demone così se il programma viene terminato non aspetta
         threadSave.start();
+
         /* Esportazione dell'Oggetto */
-        RegisterInterfaceRemote stub = (RegisterInterfaceRemote)
-                UnicastRemoteObject.exportObject(remoteService, 0);
+        RegisterInterfaceRemote stub = (RegisterInterfaceRemote) UnicastRemoteObject.exportObject(remoteService, 0);
         /* Creazione di un registry sulla porta args[0]*/
         LocateRegistry.createRegistry(RegPort);
         Registry r=LocateRegistry.getRegistry(RegPort);
         /* Pubblicazione dello stub nel registry */
         r.rebind("REMOTE-SERVER", stub);
-        System.out.println("Server ready RMI");
-        //Thread.sleep(5000);
-        //System.out.println("Lista Utente "+ listUser.toString());
+        // System.out.println("Server ready RMI");
+        // Thread.sleep(5000);
+        // System.out.println("Lista Utente "+ listUser.toString());
 
-        //inizializzazione di un pool di thread
+        // inizializzazione di un pool di thread
         ExecutorService service = Executors.newCachedThreadPool();
-        // Thread threadSave = new Thread();
-        //THREAD RMI -> LISTA UTENTI
-        //Thread Trmi = new Thread();
-        //leggo il file della configurazione
-        int port;
-        if (args.length == 0) {
-            port = DEFAULT_PORT;
-            //return;
-        } else
-            port = Integer.parseInt(args[0]);
-        System.out.println("Using port " + port);
 
         //socket, selector e channel
         ServerSocketChannel serverChannel; //socket del server
         Selector selector;
-        try { //configurazione server con creazione e bind di socket e selector
-            serverChannel = ServerSocketChannel.open(); //apro socket
-            ServerSocket ss = serverChannel.socket(); //la metto come socket
-            InetSocketAddress address = new InetSocketAddress(port);
-            ss.bind(address); //faccio la bind
-            serverChannel.configureBlocking(false); //come rirchiesto dall'esercizio, uso il configureblocking
-            selector = Selector.open(); //apro il selettore
-            serverChannel.register(selector, SelectionKey.OP_ACCEPT); //lo registro nel selector
+        try { // configurazione server con creazione e bind di socket e selector
+            serverChannel = ServerSocketChannel.open(); // apro socket
+            ServerSocket ss = serverChannel.socket(); // la metto come socket
+            InetSocketAddress address = new InetSocketAddress(DEFAULT_PORT);
+            ss.bind(address); // faccio la bind
+            serverChannel.configureBlocking(false); // non bloccante
+            selector = Selector.open(); // apro il selettore
+            serverChannel.register(selector, SelectionKey.OP_ACCEPT); // lo registro nel selector
         } catch (IOException ex) {
             ex.printStackTrace();
             return;
         }
 
-        while (true) { //esecuzione del server
-            //System.out.println("sto prendendo il selector");
+        while (true) { // esecuzione del server
+            // System.out.println("sto prendendo il selector");
             try {
                 int nChiavi = selector.select();
-                System.out.println("ho n chiavi: "+ nChiavi); //verifico quali richieste sono attive
+                // System.out.println("ho n chiavi: "+ nChiavi); // verifico quante richieste sono attive
             } catch (IOException ex) {
                 ex.printStackTrace();
                 break;
             }
-            //System.out.println("ho passato la select");
+            // System.out.println("ho passato la select");
             /*
             listaUtentiLoggati:
             [
@@ -126,20 +113,19 @@ public class Server {
             utente -> logout -> metto a null il mio id utente che ho nella lista
 
              */
-            Set<SelectionKey> readyKeys = selector.selectedKeys(); //chiavi dei client con richieste pronte
-            //System.out.println("queste sono le chiavi delle task" + readyKeys);
-            Iterator<SelectionKey> iterator = readyKeys.iterator(); //iteratore
+            Set<SelectionKey> readyKeys = selector.selectedKeys(); // chiavi dei client con richieste pronte
+            // System.out.println("queste sono le chiavi delle task" + readyKeys);
+            Iterator<SelectionKey> iterator = readyKeys.iterator(); // iteratore delle chiavi
 
             while (iterator.hasNext()) { // processo le richieste dei client -> login,register,nuovo post, voto, commento, ecc.
                 SelectionKey key = iterator.next();
-                //SelectionKey key = iterator.next();
                 iterator.remove();
-                //System.out.println("stampo le key:  "+key);
+                // System.out.println("stampo le key:  "+key);
                 // rimuove la chiave dal Selected Set, ma non dal Registered Set
-                //cosa deve fare il server a seconda della richiesta -> divide le task tra vari thread
-                try { //leggo le task e le devo mettere in una lista per farle processare ad altri thread
+                // cosa deve fare il server a seconda della richiesta -> divide le task tra vari thread
+                try { // leggo le task e le devo mettere in una lista per farle processare ad altri thread
                     if (key.isAcceptable()) {
-                        registrazione(selector, key); //viene registrata
+                        registrazione(selector, key); // viene registrata
                     } else if (key.isReadable()) {
                         // legge il contenuto
                         // MEGA SWOTHC DELLA MORTE CON I FULMINI
@@ -151,17 +137,27 @@ public class Server {
                         tokenComando = st.nextToken();// dovrebbe avere la stringa del comando
 
                         if(tokenComando.equals("post"))// ci sono 4 token: 1)comando,2)titolo,3)uno spazio,4)contenuto
-                        {
-                            System.out.println("sono nel ramo else");
+                        {                              // in caso che il comando sia post ritokenizzo l'input perchè è diverso
+                                                        // per dare la possibilità di scrivere più parole nel titolo e nel contenuto
+                            // System.out.println("sono nel ramo else");
                             st = new StringTokenizer(input,"\"");
                             tokenComando = st.nextToken();
-                            tokenComando = tokenComando.substring(0,tokenComando.length()-1);
+                            tokenComando = tokenComando.substring(0,tokenComando.length()-1); // prende il token comando senza lo spazio in fondo
                         }
 
-                        System.out.println("questo è il token del comando: "+tokenComando);
+                        System.out.println("[SERVER]: questo è il token del comando -> " + tokenComando);
                         ByteBuffer buffer = (ByteBuffer)key.attachment();// buffer della chiave
+                        // per ogni comando viene creata una task(Callable) che restituisce una risposta da inviare al client
                         switch (tokenComando)
                         {
+                            case"!quit": // in caso che il client invii !quit rimuovo la sua connessione dalla lista
+                            {
+                                // System.out.println(listUsersConnessi.getListClientConnessi().toString());
+                                String idClient = st.nextToken();
+                                listUsersConnessi.getListClientConnessi().remove(idClient);
+                                // System.out.println(listUsersConnessi.getListClientConnessi().toString());
+                                continue;
+                            }
                             case"login":
                             {
                                 String username = st.nextToken();
@@ -182,7 +178,28 @@ public class Server {
                             }
                             case"help":
                             {
-                                output = "il programma lo usi con le mani";
+                                StringBuilder string = new StringBuilder("Comandi per il server: \n");
+                                string.append("-help : mostra i comandi utilizzabili sulla piattaforma\n");
+                                string.append("-register <USERNAME> <PASSWORD> <TAG1> [TAG2] [TAG3] : e' possibile registrare l'utente,\n" +
+                                        " ma bisogna dare un username univoco,\n" +
+                                        " una password di minimo 6 caratteri\n" +
+                                        " e minimo 1 tag o massimo 3 tags\n");
+                                string.append("-login <USERNAME> <PASSWORD>: l'utente viene connesso,\n" +
+                                        " senza questa operazione non sara' possibile eseguire le altre operazioni sottostanti\n");
+                                string.append("-logout : l'utente si disconnetera' dal client\n");
+                                string.append("-list users : mostrera' gli utenti che hanno almeno un tag in comune con l'utente connesso\n");
+                                string.append("-list followers : mostrera' le persone seguite dall'utente connesso\n");
+                                string.append("-list following : mostrera' le persone che seguono l'utente connesso\n");
+                                string.append("-follow <USERNAME> : l'utente iniziera' ad avere continui aggiornamenti nei propri feed da parte dell'utente seguito\n");
+                                string.append("-blog : verranno mostrati i post pubblicati dall'utente connesso\n");
+                                string.append("-post \"<TITLE>\" \"<CONTENT>\" : l'utente pubblichera' un post nel proprio blog che potra' essere visto dai seguaci,\n" +
+                                        "attenzione bisogna rispettare la sintassi del comando per scrivere piu' parole nei campi\n");
+                                string.append("-show post <IDPOST> : verra' mostrato ogni informazione relativa al post indicato attraverso l'id\n");
+                                string.append("-show feed : verranno mostrati i post degli utenti seguiti dall'utente connesso\n");
+                                string.append("-delete <IDPOST> : verra' cancellato un post di cui si e' autori\n");
+                                string.append("-rewin <IDPOST> : verra' condiviso un post di un altro utente sul proprio blog per dargli maggiore visibilita'\n");
+                                output = string.toString();
+                                // System.out.println("dentro allo swithc "+output);
                                 break;
                             }
                             case"list":
@@ -234,11 +251,11 @@ public class Server {
                             case"post":
                             {
                                 String title = st.nextToken();
-                                st.nextToken();
+                                st.nextToken(); // uno spazio vuoto che non serve
                                 String content = st.nextToken();
 
                                 String idClient = st.nextToken().substring(1); // c'e uno spazio all'inizio per la tokenizzazione diversa
-                                System.out.println("id del client parsato: " +idClient);
+                                // System.out.println("id del client parsato: " +idClient);
                                 Future<String> future = service.submit(new TaskNewPost(listUsersConnessi,idClient,title,content, listPost));
                                 output = future.get();
                                 break;
@@ -256,11 +273,31 @@ public class Server {
                                         output = future.get();
                                         break;
                                     }
-                                    case"feed":
+                                    case"feed": // è stata cambiata rispetto alle altre task per riutilizzare la funzione di raccolta dei feed
                                     {
                                         String idClient = st.nextToken();
-                                        Future<String> future = service.submit(new TaskShowFeed(listUsersConnessi,idClient, listPost));
-                                        output = future.get();
+                                        Future<Set<Post>> future = service.submit(new TaskShowFeed(listUsersConnessi,idClient, listPost, remoteService.getListUser()));
+                                        StringBuilder result;
+                                        if(future.get() != null)
+                                        {
+                                            // formattazione output
+                                            result = new StringBuilder("       Feed                \n");
+                                            result.append("  ID Post   |       Title  \n---------------------------\n");
+                                            if(future.get().isEmpty())
+                                            {
+                                                result.append("         Non hai feed        ");
+                                            }
+                                            else
+                                            {
+                                                for (Post p: future.get()) {
+                                                    result.append(p.toString());
+                                                }
+                                            }
+                                        }
+                                        else
+                                            result = new StringBuilder("[SERVER]:Richiesta show feed fallita");
+
+                                        output = result.toString();
                                         break;
                                     }
                                     default:
@@ -274,14 +311,44 @@ public class Server {
                             {
                                 String idPost = st.nextToken();
                                 String idClient = st.nextToken();
-                                Future<String> future = service.submit(new TaskShowFeed(listUsersConnessi,idClient, listPost));
+                                Future<String> future = service.submit(new TaskDelete(listUsersConnessi,idClient,idPost, listPost));
                                 output = future.get();
+                                break;
+                            }
+                            case"rewin":
+                            {
+                                String idPost = st.nextToken();
+                                String idClient = st.nextToken();
+                                Future<String> future = service.submit(new TaskRewin(listUsersConnessi,idClient,idPost, listPost));
+                                output = future.get();
+                                break;
+                            }
+                            case"rate":
+                            {
+                                String idPost = st.nextToken();
+                                String vote = st.nextToken();
+                                String idClient = st.nextToken();
+                                if(!vote.equals("+1") && !vote.equals("-1"))
+                                {
+                                    output ="[SERVER]: Voto non riconosciuto, forse volevo scrivere +1 o -1";
+                                    break;
+                                }
+                                Set<Post> feed = service.submit(new TaskShowFeed(listUsersConnessi,idClient,listPost, remoteService.getListUser())).get(); // ottengo i feed riutilizzando una task
+                                Future<String> future = service.submit(new TaskRate(listUsersConnessi,idClient, listPost, vote, feed, idPost));
+                                output = future.get();
+                                break;
+                            }
+                            case"add":
+                            {
+                                String idClient = st.nextToken();
+                                User myUser = listUsersConnessi.getListClientConnessi().get(idClient);
+                                myUser.addFollowings("2");
                                 break;
                             }
                             default:
                             {
-                                output = "Comando non riconosciuto";
-                                System.out.println("[SERVER]:Comando non riconosciuto");
+                                output = "[SERVER]: Comando non riconosciuto";
+                                System.out.println("[SERVER]:Comando non riconosciuto -> " + tokenComando);
                             }
                         }
                         // meccanismo di risposta al client
@@ -292,7 +359,7 @@ public class Server {
                         buffer.put(output.getBytes(StandardCharsets.UTF_8));
                         buffer.flip();
                     }else if(key.isWritable()){
-                        scritturaCanale(selector, key);//scrive il contenuto
+                        scritturaCanale(selector, key);// scrive il contenuto
                     }
                 } catch (IOException ex) {
 
@@ -310,36 +377,33 @@ public class Server {
     }
 
     private static void registrazione(Selector sel, SelectionKey selectionKey) throws IOException{
-        ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel(); //prendo la key del client per recuperare il socket
-        SocketChannel client = server.accept();                           //accetto la richiesta del server
-        String clientId = client.socket().getInputStream().toString().substring(client.socket().getInputStream().toString().lastIndexOf("@") + 1 );
+        ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel(); // prendo la key del client per recuperare il socket
+        SocketChannel client = server.accept();                           // accetto la richiesta del server
+        String clientId = client.socket().getInputStream().toString().substring(client.socket().getInputStream().toString().lastIndexOf("@") + 1 ); // id univoco del client
         System.out.println("[SERVER]:Connessione accettata dal client: " + clientId);
-        listUsersConnessi.putListClientConnessi(clientId,null);//inizializzo l'elemento della lista dove segnerò l'utente loggato
-        //client.socket().getInputStream().toString().substring(client.socket().getInputStream().toString().lastIndexOf("@") + 1 ) id del client che si connette al server
-        ByteBuffer clientByteBuffer = ByteBuffer.wrap(new byte[1024]);
+        listUsersConnessi.putListClientConnessi(clientId,null);// inizializzo l'elemento della lista dove segnerò l'utente loggato
+        ByteBuffer clientByteBuffer = ByteBuffer.wrap(new byte[BUFFER_SIZE]);
         client.configureBlocking(false);                                    // dico che non deve essere bloccante
-        client.register(sel, SelectionKey.OP_READ, clientByteBuffer);
+        client.register(sel, SelectionKey.OP_READ, clientByteBuffer);       // gli comunico che si deve aspettare qualcosa dal client
     }
 
     private static String leggiCanale(Selector sel, SelectionKey selectionKey) throws IOException {
-        //System.out.println("sto leggendo dal canale");
-        StringBuilder inputString = new StringBuilder(); //stringbuilder per richiesta/risposta (per fare l'append)
-        SocketChannel client = (SocketChannel) selectionKey.channel();               //prendo il socket del client
-        String clientId = client.socket().getInputStream().toString().substring(client.socket().getInputStream().toString().lastIndexOf("@") + 1 );
-        //System.out.println("ID client? --> "+ client.socket().getInputStream().toString());
+        // System.out.println("sto leggendo dal canale");
+        StringBuilder inputString = new StringBuilder(); // stringbuilder per richiesta/risposta (per fare l'append)
+        SocketChannel client = (SocketChannel) selectionKey.channel();               // prendo il socket del client
+        String clientId = client.socket().getInputStream().toString().substring(client.socket().getInputStream().toString().lastIndexOf("@") + 1 ); // id univoco del client
+        // System.out.println("ID client? --> "+ client.socket().getInputStream().toString());
         client.configureBlocking(false);
-        //System.out.println("fino a qui");
-        ByteBuffer buffer = (ByteBuffer) selectionKey.attachment();                  //prendo l'attachment
+        // System.out.println("fino a qui");
+        ByteBuffer buffer = (ByteBuffer) selectionKey.attachment();                  // prendo l'attachment
 
-        int nCaratteriLetti = client.read(buffer); //legge dal client
+        int nCaratteriLetti = client.read(buffer); // legge dal client
 
+        //login username password idClient
         buffer.put(" ".getBytes(StandardCharsets.UTF_8));
         buffer.put(clientId.getBytes(StandardCharsets.UTF_8)); // server nel login per controllare l'id del client
-
+                                                                // viene utilizzato spesso per ottenere le info dell'utente
         // System.out.println("[SERVER]:ho letto tot caratteri" + nCaratteriLetti);
-        // quando faccio la lettura del comando che mi viene inviato da un client
-        // avrò una lista delle task da suddividere nei vari thread che dispone il server
-        //
         if(nCaratteriLetti < 0){
             client.close();
             throw new IOException("channel read failed.");
@@ -349,28 +413,23 @@ public class Server {
             // la lettura porta tutto nel buffer locale e poi devo portarlo
             // carattere per carattere nello string builder
             buffer.flip();
-            while (buffer.hasRemaining()) inputString.append((char) buffer.get()); //legge cose
+            while (buffer.hasRemaining()) inputString.append((char) buffer.get()); // legge cose
 
-            System.out.println("[SERVER]:HO RICEVUTO DAL CLIENT QUESTO: "+inputString);
+            // System.out.println("[SERVER]:HO RICEVUTO DAL CLIENT QUESTO: "+inputString);
             buffer.clear();
-            //buffer.flip();//pronto per scrivere
-            client.register(sel, SelectionKey.OP_WRITE, buffer);
+            // buffer.flip();//pronto per scrivere
+            client.register(sel, SelectionKey.OP_WRITE, buffer); // dico al server che dovrà scrivere qualcosa al client
             return inputString.toString();
         }
     }
 
     private static void scritturaCanale(Selector sel, SelectionKey selectionKey) throws IOException {
         SocketChannel client;
-        StringBuilder inputString = new StringBuilder();
         client = (SocketChannel) selectionKey.channel();
         client.configureBlocking(false);
         ByteBuffer buffer = (ByteBuffer) selectionKey.attachment();
-       /* buffer.flip();
-        while (buffer.hasRemaining()) inputString.append((char) buffer.get());
-        System.out.println("stringa che sto scrivendo: " + inputString);*/
-        client.write(buffer);
+        client.write(buffer); // scrive al client quello che c'+ nel buffer
         buffer.clear();
-        //ready for new writes [pos = 0]
-        client.register(sel, SelectionKey.OP_READ, buffer);
+        client.register(sel, SelectionKey.OP_READ, buffer);  // aspetta di leggere qualcosa dal client
     }
 }

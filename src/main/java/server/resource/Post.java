@@ -1,20 +1,20 @@
 package server.resource;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Post {
     private final String idPost; // è pensato come la concatenazione dell'id dell'utente + il numero della dimensione della lista dei post
     private final String title;
     private final String contenuto;
-    private final Integer positiveVote;
-    private final Integer negativeVote;
+    private Integer positiveVote;
+    private Integer negativeVote;
     private final String idAutore;
     private final Set<String> rewinUser; // id user di chi rewin il post
     private final ArrayList<String> comments;
+    private final Set<Vote> ratesUsers;
 
     public Post(String idPost, String title, String contenuto, String idAutore) {
+        this.ratesUsers = Collections.synchronizedSet(new HashSet<>());
         this.idPost = idPost;
         this.title = title;
         this.contenuto = contenuto;
@@ -29,6 +29,31 @@ public class Post {
         return rewinUser;
     }
 
+    public Set<Vote> getRatesUsers() {
+        return ratesUsers;
+    }
+
+    public void addVote(String idUser, String vote)
+    {
+        Vote newVote = null;
+        switch (vote)
+        {
+            case"+1":
+            {
+                newVote = new Vote(idUser,true);
+                this.positiveVote++;
+                break;
+            }
+            case"-1":
+            {
+                newVote = new Vote(idUser,false);
+                this.negativeVote++;
+                break;
+            }
+        }
+        if(newVote != null)
+            this.ratesUsers.add(newVote);
+    }
     public String getIdPost() {
         return idPost;
     }

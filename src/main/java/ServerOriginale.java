@@ -67,7 +67,7 @@ public class ServerOriginale {
     private static void registrazione(Selector sel, SelectionKey selectionKey) throws IOException{
         ServerSocketChannel server = (ServerSocketChannel) selectionKey.channel(); //prendo la key del client per recupare il socket
         SocketChannel client = server.accept();                           //accetto la richiesta del server
-        System.out.println("[SERVER]:Connessione accettata dal client:   " + client);
+        System.out.println("[SERVER]: Connessione accettata dal client:   " + client);
         client.configureBlocking(false);                                    // dico che non deve essere bloccante
         ByteBuffer buffer = ByteBuffer.wrap(new byte[1024]);                       //attach per le varie scritture
         SelectionKey key2 = client.register(sel, SelectionKey.OP_READ,buffer );//key del client indicando che devo scrive al client

@@ -1,5 +1,6 @@
 package server.resource;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
@@ -11,7 +12,7 @@ public class ListUser {
     private boolean modified;
 
     public ListUser() {
-        this.listUsers = new HashSet<>();
+        this.listUsers = Collections.synchronizedSet(new HashSet<>());
         this.modified = false;
         this.lock = new ReentrantLock();
     }

@@ -10,8 +10,8 @@ public class User {
     private final Set<String> tags;
     private final String hashPassword;
     private final String seed;
-    private final Set<User> followings;
-    private final Set<User> followers;
+    private final Set<String> followings;
+    private final Set<String> followers;
 
     public User(String username, Set<String> tags, Integer idUser, String hashPassword, String seed) {
         this.username = username;
@@ -23,6 +23,10 @@ public class User {
         this.hashPassword = hashPassword;
     }
 
+    public void addFollowings(String idUser)
+    {
+        this.followings.add(idUser);
+    }
     public String getUsername()
     {
         return this.username;
@@ -32,7 +36,7 @@ public class User {
         return idUser;
     }
 
-    public Set<User> getFollowings() { // ritorno gli utenti che seguo
+    public Set<String> getFollowings() { // ritorno gli utenti che seguo
         return followings;
     }
 
