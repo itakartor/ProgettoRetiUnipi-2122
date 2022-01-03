@@ -14,3 +14,9 @@ REGHOST=localhost
 REGPORT=7777
 # Timeout della socket
 TIMEOUT=100000
+# Path dei file persistenti
+PATH=C:\Users\Kartor\IdeaProjects\ProgettoReti\documentation
+# Nome del file json degli utenti
+USERFILE=users
+# Nome del file json dei posts
+POSTFILE=posts

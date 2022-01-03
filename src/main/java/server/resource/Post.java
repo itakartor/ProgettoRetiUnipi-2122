@@ -25,6 +25,10 @@ public class Post {
         this.comments = new ArrayList<>();
     }
 
+    public Set<String> getRewinUser() {
+        return rewinUser;
+    }
+
     public String getIdPost() {
         return idPost;
     }
@@ -33,6 +37,10 @@ public class Post {
         return idAutore;
     }
 
+    public void addRewinUser(String idUser)
+    {
+        this.rewinUser.add(idUser);
+    }
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder(this.idPost + "     |     ");

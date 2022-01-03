@@ -33,9 +33,7 @@ public class Server {
     private static final int RegPort = 6666;
     private static final ListUsersConnessi listUsersConnessi = new ListUsersConnessi(); // associa gli id dei client con gli utenti loggati
     private static final String pathFileConfig ="C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\src\\main\\java\\config\\serverConfig.txt";
-    private static final String pathFile = "C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\documentation";
-    private static final String nameFileUsers = "users";
-    private static final String nameFilePosts = "posts";
+
     public static void main(String[] args) throws IOException {
         //LISTA UTENTI
         /*Set<User> listUser = new HashSet<>();//metodo per ricaricare gli utenti dal file json
@@ -46,17 +44,19 @@ public class Server {
         listUser.add(user);
         Integer counterUser = listUser.size();*/
         ConfigField configServer = UtilFile.readConfigurationServer(pathFileConfig); // legge la configurazione ma non la applica
-
-        ListPost listPost = new ListPost();
+        String pathFile = configServer.getPathFile();
+        String nameFilePosts = configServer.getNameFilePosts();
+        String nameFileUsers = configServer.getNameFileUsers();
+        ListPost listPost = new ListPost(pathFile, nameFilePosts);
         // infatti voglio che la lista sia unica per evitare continue modifiche in tutti gli utenti
         // ed evitare problemi di sincronizzazione attraverso operazioni come voto, commento o delete
 
 
         // parte RMI
         /* Creazione di un'istanza dell'oggetto EUStatsService */
-        RegisterInterfaceRemoteImpl remoteService = new RegisterInterfaceRemoteImpl();
+        RegisterInterfaceRemoteImpl remoteService = new RegisterInterfaceRemoteImpl(pathFile,nameFileUsers);
         // thread dedito al salvataggio della lista con i vari cambiamenti, in modo tale da evitare sprechi
-        Thread threadSave = new Thread(new TaskSave(configServer.getMsTimeout(),pathFile, nameFileUsers, nameFilePosts, remoteService.getObjectListUser(), listPost));
+        Thread threadSave = new Thread(new TaskSave(configServer.getMsTimeout(), pathFile, nameFileUsers, nameFilePosts, remoteService.getObjectListUser(), listPost));
         threadSave.setDaemon(true);
         threadSave.start();
         /* Esportazione dell'Oggetto */

@@ -29,7 +29,7 @@ public class TaskSave implements Runnable {
         {
             try {
                 Thread.sleep(this.msDelay);
-                System.out.println(Thread.currentThread().getName() + " variabile modify " + listUsers.isModified());
+                // System.out.println(Thread.currentThread().getName() + " variabile modify " + listUsers.isModified());
                 if(this.listUsers.isModified())
                 {
 

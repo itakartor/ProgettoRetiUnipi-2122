@@ -13,9 +13,7 @@ public class ListPost {
     private Boolean listPostModified;
     private String timeStamp;
 
-    public ListPost() throws IOException {
-        String pathFile = "C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\documentation";
-        String nameFile = "posts";
+    public ListPost(String pathFile,String nameFile) throws IOException {
         this.listPost = Collections.synchronizedSet(new HashSet<>());
         this.listPostModified = false;
         switch (CreatoreJson.creazioneFile(pathFile, nameFile)) // lettura o creazione del file post

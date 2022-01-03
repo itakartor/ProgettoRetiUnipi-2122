@@ -9,6 +9,10 @@ public class ConfigField {
     private String registerHost;
     private Integer registerPort;
     private Integer msTimeout;
+    private String pathFile;
+    private String nameFileUsers;
+    private String nameFilePosts;
+
 
     public ConfigField() {
     }
@@ -77,6 +81,30 @@ public class ConfigField {
         this.msTimeout = msTimeout;
     }
 
+    public String getPathFile() {
+        return pathFile;
+    }
+
+    public void setPathFile(String pathFile) {
+        this.pathFile = pathFile;
+    }
+
+    public String getNameFileUsers() {
+        return nameFileUsers;
+    }
+
+    public void setNameFileUsers(String nameFileUsers) {
+        this.nameFileUsers = nameFileUsers;
+    }
+
+    public String getNameFilePosts() {
+        return nameFilePosts;
+    }
+
+    public void setNameFilePosts(String nameFilePosts) {
+        this.nameFilePosts = nameFilePosts;
+    }
+
     @Override
     public String toString() {
         return "ConfigField{" +
@@ -88,6 +116,9 @@ public class ConfigField {
                 ", registerHost='" + registerHost + '\'' +
                 ", registerPort=" + registerPort +
                 ", msTimeout=" + msTimeout +
+                ", pathFile='" + pathFile + '\'' +
+                ", nameFileUsers='" + nameFileUsers + '\'' +
+                ", nameFilePosts='" + nameFilePosts + '\'' +
                 '}';
     }
 }

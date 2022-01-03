@@ -28,7 +28,7 @@ public class TaskBlog implements Callable<String> {
         if(myUser != null) // se l'utente fosse loggato
         {
             for (Post p: listPost.getListPost()) {
-                if(p.getIdAutore().equals(myUser.getIdUser()))
+                if(p.getIdAutore().equals(myUser.getIdUser()) || p.getRewinUser().stream().anyMatch(idUser -> idUser.equals(myUser.getIdUser())))
                 {
                     resultList.add(p);
                 }
@@ -38,7 +38,7 @@ public class TaskBlog implements Callable<String> {
             result.append(" Id Post    |       Titolo  \n---------------------------\n");
             if(resultList.isEmpty())
             {
-               result.append("         Non hai posts        ");
+                result.append("         Non hai posts        ");
             }
             else
             {

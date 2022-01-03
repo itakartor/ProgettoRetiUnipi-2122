@@ -67,7 +67,24 @@ public class UtilFile {
                 st.nextToken();
                 config.setMsTimeout(Integer.parseInt(st.nextToken()));
             }
+            else if(s.contains("PATH"))
+            {
+                st.nextToken();
+                config.setPathFile(st.nextToken());
+            }
+            else if(s.contains("USERFILE"))
+            {
+                st.nextToken();
+                config.setNameFileUsers(st.nextToken());
+            }else if(s.contains("POSTFILE"))
+            {
+                st.nextToken();
+                config.setNameFilePosts(st.nextToken());
+            }
+
+
         });
+        // System.out.println(config.toString());
         return config;
     }
 }

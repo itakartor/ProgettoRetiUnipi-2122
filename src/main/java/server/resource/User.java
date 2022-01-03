@@ -12,7 +12,6 @@ public class User {
     private final String seed;
     private final Set<User> followings;
     private final Set<User> followers;
-    private final Set<Post> rewinPost;
 
     public User(String username, Set<String> tags, Integer idUser, String hashPassword, String seed) {
         this.username = username;
@@ -20,7 +19,6 @@ public class User {
         this.tags = tags;
         this.followers = new HashSet<>();
         this.followings = new HashSet<>();
-        this.rewinPost = new HashSet<>();
         this.seed = seed;
         this.hashPassword = hashPassword;
     }

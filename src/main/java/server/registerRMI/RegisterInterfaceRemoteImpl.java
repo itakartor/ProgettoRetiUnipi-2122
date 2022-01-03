@@ -20,14 +20,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class RegisterInterfaceRemoteImpl implements RegisterInterfaceRemote{
-
-    // queste informazioni potrebbero essere messe nel file config
-    String pathFile = "C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\documentation";
-    String nameFile = "users";
     ExecutorService service = Executors.newCachedThreadPool();
     //listaUtenti
     private final ListUser listUser = new ListUser();
-    public RegisterInterfaceRemoteImpl() throws IOException {
+    public RegisterInterfaceRemoteImpl(String pathFile,String nameFile) throws IOException {
         switch (CreatoreJson.creazioneFile(pathFile,nameFile))
         {
             case 0:
