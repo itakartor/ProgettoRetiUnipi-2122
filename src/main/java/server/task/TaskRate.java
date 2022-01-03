@@ -29,12 +29,12 @@ public class TaskRate implements Callable<String> {
         User myUser = this.listUsersConnessi.getListClientConnessi().get(idClient);
         if(myUser != null) // se l'utente fosse loggato
         {
+            // System.out.println("sono loggato");
             Post myPost = null;
-            for (Post p: this.listPost.getListPost()) {
+            for (Post p: this.listPost.getListPost()) { // verifico se esiste il post nella lista
                 if(p.getIdPost().equals(idPost))
                 {
                     myPost = p;
-                    break;
                 }
             }
             if(myPost != null) // ho trovato il post nei miei feed
@@ -45,17 +45,22 @@ public class TaskRate implements Callable<String> {
                         if(v.getIdUser().equals(myUser.getIdUser())) // controllo se ho gia messo un voto
                         {
                             result = new StringBuilder("[SERVER]: Non puoi votare un post piu' di una volta");
+                            myPost = null; // assegno null così il post non più essere votato dal momento che l'ho gia fatto
                             break;
                         }
                     }
-                    myPost.addVote(myUser.getIdUser(),vote);
+                    if(myPost != null) { // se è andato tutto a buon fine metto il voto e dico al server di aggiornare la lista di post
+                        myPost.addVote(myUser.getIdUser(), vote);
+                        this.listPost.setListPostModified(true);
+                        result = new StringBuilder("[SERVER]: Voto accettato");
+                    }
                 }
                 else
                     result = new StringBuilder("[SERVER]: Non puoi votare un post di cui sei autore");
             }
             else
             {
-                result = new StringBuilder("[SERVER]: Il post "+ idPost+" non è nei tuoi feed");
+                result = new StringBuilder("[SERVER]: Il post "+ idPost+" non appartiene ai tuoi feed");
             }
         }
         return result.toString();

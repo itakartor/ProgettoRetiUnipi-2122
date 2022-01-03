@@ -148,12 +148,18 @@ public class Server {
                             }
                             case"login":
                             {
-                                String username = st.nextToken();
-                                String password = st.nextToken();
-                                Future<String> future = service.submit(new TaskLogin(username,password,remoteService.getListUser(),idClient,listUsersConnessi));
-                                // output = "ti sei loggato " + username +" " + password + " " + idClient;
-                                output = future.get();
-                                // System.out.println(output);
+                                if(st.countTokens()<2)
+                                {
+                                    output = "[ERROR]: per effetuare il login e' necessario un username e una password validi";
+                                }
+                                else {
+                                    String username = st.nextToken();
+                                    String password = st.nextToken();
+                                    Future<String> future = service.submit(new TaskLogin(username, password, remoteService.getListUser(), idClient, listUsersConnessi));
+                                    // output = "ti sei loggato " + username +" " + password + " " + idClient;
+                                    output = future.get();
+                                    // System.out.println(output);
+                                }
                                 break;
                             }
                             case"logout":
@@ -232,19 +238,26 @@ public class Server {
                             }  // post <title> <content>.
                             case"post":
                             {
-                                // ci sono 4 token: 1)comando,2)titolo,3)uno spazio,4)contenuto
-                                                            // in caso che il comando sia post ritokenizzo l'input perchè è diverso
+                                    // ci sono 4 token: 1)comando,2)titolo,3)uno spazio,4)contenuto
+                                    // in caso che il comando sia post ritokenizzo l'input perchè è diverso
                                     // per dare la possibilità di scrivere più parole nel titolo e nel contenuto
                                     // System.out.println("sono nel ramo else");
-                                st = new StringTokenizer(input.getComando(),"\"");
-                                tokenComando = st.nextToken();
-                                String title = st.nextToken();
-                                st.nextToken(); // uno spazio vuoto che non serve
-                                String content = st.nextToken();
+                                    st = new StringTokenizer(input.getComando(), "\"");
+                                    if(st.countTokens()<4)
+                                    {
+                                        output = "[ERROR]: per effetuare la funzione post e' necessario un titolo e un contenuto valido tra \"\" ";
+                                    }
+                                    else
+                                    {
+                                        tokenComando = st.nextToken();
+                                        String title = st.nextToken();
+                                        st.nextToken(); // uno spazio vuoto che non serve
+                                        String content = st.nextToken();
 
-                                // System.out.println("id del client parsato: " +idClient);
-                                Future<String> future = service.submit(new TaskNewPost(listUsersConnessi,idClient,title,content, listPost));
-                                output = future.get();
+                                        // System.out.println("id del client parsato: " +idClient);
+                                        Future<String> future = service.submit(new TaskNewPost(listUsersConnessi, idClient, title, content, listPost));
+                                        output = future.get();
+                                    }
                                 break;
                             }
                             case"show":
@@ -253,10 +266,18 @@ public class Server {
                                 {
                                     case"post":
                                     {
-                                        String idPost = st.nextToken();
+                                        System.out.println("questo è il counter "+st.countTokens());
+                                        if(st.countTokens()<1)
+                                        {
+                                            output = "[ERROR]: per effetuare la funzione show post e' necessario un idPost valido";
+                                        }
+                                        else {
+                                            String idPost = st.nextToken();
 
-                                        Future<String> future = service.submit(new TaskShowPost(listUsersConnessi,idClient,idPost, listPost));
-                                        output = future.get();
+                                            Future<String> future = service.submit(new TaskShowPost(listUsersConnessi,idClient,idPost, listPost));
+                                            output = future.get();
+                                        }
+
                                         break;
                                     }
                                     case"feed": // è stata cambiata rispetto alle altre task per riutilizzare la funzione di raccolta dei feed
@@ -294,36 +315,54 @@ public class Server {
                             }
                             case"delete":
                             {
-                                String idPost = st.nextToken();
-                                Future<String> future = service.submit(new TaskDelete(listUsersConnessi,idClient,idPost, listPost));
-                                output = future.get();
+                                if(st.countTokens()<1)
+                                {
+                                    output = "[ERROR]: per effetuare la funzione delete e' necessario idPost valido ";
+                                }
+                                else {
+                                    String idPost = st.nextToken();
+                                    Future<String> future = service.submit(new TaskDelete(listUsersConnessi, idClient, idPost, listPost));
+                                    output = future.get();
+                                }
                                 break;
                             }
                             case"rewin":
                             {
-                                String idPost = st.nextToken();
-                                Future<String> future = service.submit(new TaskRewin(listUsersConnessi,idClient,idPost, listPost));
-                                output = future.get();
+                                if(st.countTokens()<1)
+                                {
+                                    output = "[ERROR]: per effetuare la funzione rewin e' necessario idPost valido ";
+                                }
+                                else {
+                                    String idPost = st.nextToken();
+                                    Future<String> future = service.submit(new TaskRewin(listUsersConnessi, idClient, idPost, listPost));
+                                    output = future.get();
+                                }
                                 break;
                             }
                             case"rate":
                             {
-                                String idPost = st.nextToken();
-                                String vote = st.nextToken();
-                                if(!vote.equals("+1") && !vote.equals("-1"))
+                                if(st.countTokens()<2)
                                 {
-                                    output ="[SERVER]: Voto non riconosciuto, forse volevo scrivere +1 o -1";
-                                    break;
+                                    output = "[ERROR]: per effetuare la funzione rate e' necessario idPost e un voto[+1,-1] valido ";
                                 }
-                                Set<Post> feed = service.submit(new TaskShowFeed(listUsersConnessi,idClient,listPost, remoteService.getListUser())).get(); // ottengo i feed riutilizzando una task
-                                Future<String> future = service.submit(new TaskRate(listUsersConnessi,idClient, listPost, vote, feed, idPost));
-                                output = future.get();
+                                else {
+                                    String idPost = st.nextToken();
+                                    String vote = st.nextToken();
+                                    if (!vote.equals("+1") && !vote.equals("-1")) {
+                                        output = "[SERVER]: Voto non riconosciuto, forse volevo scrivere +1 o -1";
+                                        break;
+                                    }
+                                    Set<Post> feed = service.submit(new TaskShowFeed(listUsersConnessi, idClient, listPost, remoteService.getListUser())).get(); // ottengo i feed riutilizzando una task
+                                    Future<String> future = service.submit(new TaskRate(listUsersConnessi, idClient, listPost, vote, feed, idPost));
+                                    output = future.get();
+                                }
                                 break;
                             }
-                            case"add":
+                            case"add": // non serve a niente è momentanea per verificare i voti e i commenti senza la feature follow
                             {
                                 User myUser = listUsersConnessi.getListClientConnessi().get(idClient);
                                 myUser.addFollowings("2");
+                                output = "[SERVER]:ADD ESEGUITO";
                                 break;
                             }
                             default:
