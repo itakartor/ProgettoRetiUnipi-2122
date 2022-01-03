@@ -4,10 +4,7 @@ import config.ConfigField;
 import server.registerRMI.RegisterInterfaceRemote;
 import server.registerRMI.RegisterInterfaceRemoteImpl;
 import server.registerRMI.TaskSave;
-import server.resource.ListPost;
-import server.resource.ListUsersConnessi;
-import server.resource.Post;
-import server.resource.User;
+import server.resource.*;
 import server.task.*;
 import util.UtilFile;
 
@@ -130,20 +127,12 @@ public class Server {
                         // legge il contenuto
                         // MEGA SWOTHC DELLA MORTE CON I FULMINI
                         String output = null; // stringa da modificare per rispondere al client
-                        String input = leggiCanale(selector, key);
+                        Comando input = leggiCanale(selector, key);
+                        String idClient = input.getIdClient();
                         StringTokenizer st;
                         String tokenComando;
-                        st = new StringTokenizer(input);
+                        st = new StringTokenizer(input.getComando());
                         tokenComando = st.nextToken();// dovrebbe avere la stringa del comando
-
-                        if(tokenComando.equals("post"))// ci sono 4 token: 1)comando,2)titolo,3)uno spazio,4)contenuto
-                        {                              // in caso che il comando sia post ritokenizzo l'input perchè è diverso
-                                                        // per dare la possibilità di scrivere più parole nel titolo e nel contenuto
-                            // System.out.println("sono nel ramo else");
-                            st = new StringTokenizer(input,"\"");
-                            tokenComando = st.nextToken();
-                            tokenComando = tokenComando.substring(0,tokenComando.length()-1); // prende il token comando senza lo spazio in fondo
-                        }
 
                         System.out.println("[SERVER]: questo è il token del comando -> " + tokenComando);
                         ByteBuffer buffer = (ByteBuffer)key.attachment();// buffer della chiave
@@ -153,7 +142,6 @@ public class Server {
                             case"!quit": // in caso che il client invii !quit rimuovo la sua connessione dalla lista
                             {
                                 // System.out.println(listUsersConnessi.getListClientConnessi().toString());
-                                String idClient = st.nextToken();
                                 listUsersConnessi.getListClientConnessi().remove(idClient);
                                 // System.out.println(listUsersConnessi.getListClientConnessi().toString());
                                 continue;
@@ -162,7 +150,6 @@ public class Server {
                             {
                                 String username = st.nextToken();
                                 String password = st.nextToken();
-                                String idClient = st.nextToken();
                                 Future<String> future = service.submit(new TaskLogin(username,password,remoteService.getListUser(),idClient,listUsersConnessi));
                                 // output = "ti sei loggato " + username +" " + password + " " + idClient;
                                 output = future.get();
@@ -171,7 +158,6 @@ public class Server {
                             }
                             case"logout":
                             {
-                                String idClient = st.nextToken();
                                 Future<String> future = service.submit(new TaskLogout(idClient,listUsersConnessi));
                                 output = future.get();
                                 break;
@@ -208,7 +194,6 @@ public class Server {
                                 {
                                     case"users":
                                     {
-                                        String idClient = st.nextToken();
                                         Future<String> future = service.submit(new TaskListUsers(remoteService.getListUser(),listUsersConnessi,idClient));
                                         output = future.get();
                                         System.out.println(output);
@@ -221,7 +206,6 @@ public class Server {
                                     }
                                     case"following":
                                     {
-                                        String idClient = st.nextToken();
                                         Future<String> future = service.submit(new TaskListFollowing(remoteService.getListUser(),listUsersConnessi,idClient));
                                         output = future.get();
                                         // System.out.println(output);
@@ -237,24 +221,27 @@ public class Server {
                             case"follow": // follow username idClient
                             {
                                 String username = st.nextToken();
-                                String idClient = st.nextToken();
                                 Future<String> future;
                                 break;
                             }
                             case"blog":
                             {
-                                String idClient = st.nextToken();
                                 Future<String> future = service.submit(new TaskBlog(listUsersConnessi,idClient, listPost));
                                 output = future.get();
                                 break;
                             }  // post <title> <content>.
                             case"post":
                             {
+                                // ci sono 4 token: 1)comando,2)titolo,3)uno spazio,4)contenuto
+                                                            // in caso che il comando sia post ritokenizzo l'input perchè è diverso
+                                    // per dare la possibilità di scrivere più parole nel titolo e nel contenuto
+                                    // System.out.println("sono nel ramo else");
+                                st = new StringTokenizer(input.getComando(),"\"");
+                                tokenComando = st.nextToken();
                                 String title = st.nextToken();
                                 st.nextToken(); // uno spazio vuoto che non serve
                                 String content = st.nextToken();
 
-                                String idClient = st.nextToken().substring(1); // c'e uno spazio all'inizio per la tokenizzazione diversa
                                 // System.out.println("id del client parsato: " +idClient);
                                 Future<String> future = service.submit(new TaskNewPost(listUsersConnessi,idClient,title,content, listPost));
                                 output = future.get();
@@ -267,7 +254,6 @@ public class Server {
                                     case"post":
                                     {
                                         String idPost = st.nextToken();
-                                        String idClient = st.nextToken();
 
                                         Future<String> future = service.submit(new TaskShowPost(listUsersConnessi,idClient,idPost, listPost));
                                         output = future.get();
@@ -275,7 +261,6 @@ public class Server {
                                     }
                                     case"feed": // è stata cambiata rispetto alle altre task per riutilizzare la funzione di raccolta dei feed
                                     {
-                                        String idClient = st.nextToken();
                                         Future<Set<Post>> future = service.submit(new TaskShowFeed(listUsersConnessi,idClient, listPost, remoteService.getListUser()));
                                         StringBuilder result;
                                         if(future.get() != null)
@@ -310,7 +295,6 @@ public class Server {
                             case"delete":
                             {
                                 String idPost = st.nextToken();
-                                String idClient = st.nextToken();
                                 Future<String> future = service.submit(new TaskDelete(listUsersConnessi,idClient,idPost, listPost));
                                 output = future.get();
                                 break;
@@ -318,7 +302,6 @@ public class Server {
                             case"rewin":
                             {
                                 String idPost = st.nextToken();
-                                String idClient = st.nextToken();
                                 Future<String> future = service.submit(new TaskRewin(listUsersConnessi,idClient,idPost, listPost));
                                 output = future.get();
                                 break;
@@ -327,7 +310,6 @@ public class Server {
                             {
                                 String idPost = st.nextToken();
                                 String vote = st.nextToken();
-                                String idClient = st.nextToken();
                                 if(!vote.equals("+1") && !vote.equals("-1"))
                                 {
                                     output ="[SERVER]: Voto non riconosciuto, forse volevo scrivere +1 o -1";
@@ -340,7 +322,6 @@ public class Server {
                             }
                             case"add":
                             {
-                                String idClient = st.nextToken();
                                 User myUser = listUsersConnessi.getListClientConnessi().get(idClient);
                                 myUser.addFollowings("2");
                                 break;
@@ -387,7 +368,7 @@ public class Server {
         client.register(sel, SelectionKey.OP_READ, clientByteBuffer);       // gli comunico che si deve aspettare qualcosa dal client
     }
 
-    private static String leggiCanale(Selector sel, SelectionKey selectionKey) throws IOException {
+    private static Comando leggiCanale(Selector sel, SelectionKey selectionKey) throws IOException {
         // System.out.println("sto leggendo dal canale");
         StringBuilder inputString = new StringBuilder(); // stringbuilder per richiesta/risposta (per fare l'append)
         SocketChannel client = (SocketChannel) selectionKey.channel();               // prendo il socket del client
@@ -400,9 +381,10 @@ public class Server {
         int nCaratteriLetti = client.read(buffer); // legge dal client
 
         //login username password idClient
-        buffer.put(" ".getBytes(StandardCharsets.UTF_8));
+
+        /*buffer.put(" ".getBytes(StandardCharsets.UTF_8));
         buffer.put(clientId.getBytes(StandardCharsets.UTF_8)); // server nel login per controllare l'id del client
-                                                                // viene utilizzato spesso per ottenere le info dell'utente
+        */                                                        // viene utilizzato spesso per ottenere le info dell'utente
         // System.out.println("[SERVER]:ho letto tot caratteri" + nCaratteriLetti);
         if(nCaratteriLetti < 0){
             client.close();
@@ -419,7 +401,7 @@ public class Server {
             buffer.clear();
             // buffer.flip();//pronto per scrivere
             client.register(sel, SelectionKey.OP_WRITE, buffer); // dico al server che dovrà scrivere qualcosa al client
-            return inputString.toString();
+            return new Comando(clientId,inputString.toString());
         }
     }
 

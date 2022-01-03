@@ -45,7 +45,7 @@ public class TaskDelete implements Callable<String> {
                     result = new StringBuilder("[SERVER]:Post " +this.idPost+ " eliminato");
                 }
                 else
-                    result = new StringBuilder("[SERVER]:Post " +this.idPost+ " non è tuo");
+                    result = new StringBuilder("[SERVER]: Non sei autore del Post " +this.idPost);
             }
             else
                 result = new StringBuilder("[SERVER]:Post " +this.idPost+ " non esiste");
