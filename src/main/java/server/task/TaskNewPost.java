@@ -27,7 +27,7 @@ public class TaskNewPost implements Callable<String> {
         {
             String userId = myUser.getIdUser();
             Post post = new Post(userId+"-"+listPost.getListPost().size(),title,content,userId, myUser.getUsername());
-            listPost.getListPost().add(post);
+            listPost.addPost(post);
             // System.out.println(post.toString());
             result = post.toString();
             listPost.setListPostModified(true);

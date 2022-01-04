@@ -33,7 +33,7 @@ public class TaskSave implements Runnable {
                 if(this.listUsers.isModified())
                 {
 
-                    if(CreatoreJson.AggiornametoFileUsers(this.pathFile,this.fileNameUsers,listUsers.getListUser()))
+                    if(CreatoreJson.AggiornametoFileUsers(this.pathFile,this.fileNameUsers,listUsers))
                     {
                         System.out.println("[SERVER]:aggiornamento file users json terminato con successo");
                     }
@@ -42,7 +42,7 @@ public class TaskSave implements Runnable {
                 }
                 if(this.listPost.isModified())
                 {
-                    if(CreatoreJson.AggiornametoFilePost(this.pathFile,this.fileNamePosts,listPost.getListPost()))
+                    if(CreatoreJson.AggiornametoFilePost(this.pathFile,this.fileNamePosts,listPost))
                     {
                         System.out.println("[SERVER]:aggiornamento file posts json terminato con successo");
                     }

@@ -2,22 +2,16 @@ package server.registerRMI;
 
 import GestioneJson.CreatoreJson;
 import GestioneJson.LeggiJson;
-import com.github.dockerjava.api.model.GenericResource;
 import server.resource.ListUser;
-import server.resource.ListUserLight;
 import server.resource.User;
 import server.task.TaskRegister;
-import util.Generators;
 
 import java.io.IOException;
-import java.nio.channels.SelectionKey;
-import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class RegisterInterfaceRemoteImpl implements RegisterInterfaceRemote{
     ExecutorService service = Executors.newCachedThreadPool();
@@ -32,10 +26,10 @@ public class RegisterInterfaceRemoteImpl implements RegisterInterfaceRemote{
             case 1:
                 System.out.println("[SERVER]: File json "+nameFile+" gia esistente lettura in atto");
                 // devo leggere il file
-                ListUserLight supportList = LeggiJson.LetturaFileUsers(pathFile,nameFile);
+                ListUser supportList = LeggiJson.LetturaFileUsers(pathFile,nameFile);
                 if(supportList != null)
                 {
-                    this.listUser.setListUser(supportList.getListUsers());
+                    this.listUser.setListUser(supportList.getListUser());
                     this.listUser.setTimeStamp(supportList.getTimeStamp());
                     // System.out.println(this.listUser.toString());
                 }

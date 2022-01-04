@@ -24,7 +24,7 @@ public class ListPost {
             case 1:
                 System.out.println("[SERVER]: File json "+nameFile+" gia esistente lettura in atto");
                 // devo leggere il file
-                ListPostLight supportList = LeggiJson.LetturaFilePost(pathFile, nameFile);
+                ListPost supportList = LeggiJson.LetturaFilePost(pathFile, nameFile);
                 if(supportList != null)
                 {
                     this.listPost = supportList.getListPost();
@@ -44,6 +44,10 @@ public class ListPost {
         return listPostModified;
     }
 
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
     public Set<Post> getListPost() {
         return listPost;
     }
@@ -59,5 +63,9 @@ public class ListPost {
 
     public void setListPost(Set<Post> listPost) {
         this.listPost = listPost;
+    }
+
+    public String getTimeStamp() {
+        return timeStamp;
     }
 }

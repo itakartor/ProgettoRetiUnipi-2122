@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import server.resource.ListPostLight;
-import server.resource.ListUserLight;
+import server.resource.ListPost;
+import server.resource.ListUser;
 
 
 import java.io.FileInputStream;
@@ -16,7 +16,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
 public class LeggiJson {
-    public static ListUserLight LetturaFileUsers(String pathFile, String nameFile) throws IOException {
+    public static ListUser LetturaFileUsers(String pathFile, String nameFile) throws IOException {
         FileInputStream fin = new FileInputStream( pathFile + "/" +nameFile + ".json");
         FileChannel fc = fin.getChannel();
 
@@ -30,13 +30,13 @@ public class LeggiJson {
         return JsonString_correctDeserializing_Users(inputString);
     }
 
-    public static ListUserLight JsonString_correctDeserializing_Users(String inputString) {
-        Type listOfMyClassObject = new TypeToken<ListUserLight>() {}.getType();
+    public static ListUser JsonString_correctDeserializing_Users(String inputString) {
+        Type listOfMyClassObject = new TypeToken<ListUser>() {}.getType();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.fromJson(inputString, listOfMyClassObject);
     }
 
-    public static ListPostLight LetturaFilePost(String pathFile, String nameFile) throws IOException {
+    public static ListPost LetturaFilePost(String pathFile, String nameFile) throws IOException {
         FileInputStream fin = new FileInputStream( pathFile + "/" +nameFile + ".json");
         FileChannel fc = fin.getChannel();
 
@@ -50,8 +50,8 @@ public class LeggiJson {
         return JsonString_correctDeserializing_Posts(inputString);
     }
 
-    public static ListPostLight JsonString_correctDeserializing_Posts(String inputString) {
-        Type listOfMyClassObject = new TypeToken<ListPostLight>() {}.getType();
+    public static ListPost JsonString_correctDeserializing_Posts(String inputString) {
+        Type listOfMyClassObject = new TypeToken<ListPost>() {}.getType();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.fromJson(inputString, listOfMyClassObject);
     }

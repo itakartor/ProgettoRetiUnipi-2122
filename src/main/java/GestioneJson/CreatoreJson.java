@@ -43,7 +43,7 @@ public class CreatoreJson {
 
         return 0; // ho creato il file
     }
-    public static boolean AggiornametoFileUsers(String pathFile, String nameFile, Set<User> listUser) throws IOException {
+    public static boolean AggiornametoFileUsers(String pathFile, String nameFile, ListUser listUser) throws IOException {
             if(pathFile == null || nameFile == null)
             {
                 System.out.println("[ERROR]: Configurazione nella Creazione file json nulla");
@@ -69,17 +69,16 @@ public class CreatoreJson {
             *   ],
             *   timeStamp
             * }*/
+            listUser.setTimeStamp(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
 
-            ListUserLight listUserLight = new ListUserLight(new SimpleDateFormat("dd/MM/yyyy").format(new Date()),listUser);
-
-            buffer.put(gson.toJson(listUserLight).getBytes(StandardCharsets.UTF_8));
+            buffer.put(gson.toJson(listUser).getBytes(StandardCharsets.UTF_8));
 
             buffer.flip();
             fc.write(buffer);
             buffer.clear();
             return true;
     }
-    public static boolean AggiornametoFilePost(String pathFile, String nameFile, Set<Post> listPost) throws IOException {
+    public static boolean AggiornametoFilePost(String pathFile, String nameFile, ListPost listPost) throws IOException {
         if(pathFile == null || nameFile == null)
         {
             System.out.println("[ERROR]: Configurazione nella Creazione file json nulla");
@@ -105,11 +104,8 @@ public class CreatoreJson {
          *   ],
          *   timeStamp
          * }*/
-
-        ListPostLight listPostLight = new ListPostLight(listPost,new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
-
-
-        buffer.put(gson.toJson(listPostLight).getBytes(StandardCharsets.UTF_8));
+        listPost.setTimeStamp(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+        buffer.put(gson.toJson(listPost).getBytes(StandardCharsets.UTF_8));
 
         buffer.flip();
         fc.write(buffer);

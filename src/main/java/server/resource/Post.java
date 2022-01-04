@@ -23,7 +23,7 @@ public class Post {
         this.positiveVote = 0;
         this.negativeVote = 0;
         this.idAutore = idAutore;
-        this.rewinUser = new HashSet<>();
+        this.rewinUser = Collections.synchronizedSet(new HashSet<>());
         this.comments = Collections.synchronizedSet(new HashSet<>());
     }
 

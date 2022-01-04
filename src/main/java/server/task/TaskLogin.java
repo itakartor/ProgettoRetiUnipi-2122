@@ -43,7 +43,6 @@ public class TaskLogin implements Callable<String> {
             }
             if(user != null) // se fosse null vuol dire che l'utente non esiste
             {
-                listClientConnessi.getLock().lock();
                 for (Map.Entry<String, User> entry : map.entrySet()) { // controllo se trovo lo stesso utente loggato su un altro client
                     if(entry.getValue() == user && !entry.getKey().equals(clientId))
                     {
@@ -75,7 +74,6 @@ public class TaskLogin implements Callable<String> {
                         }
                     }
                 }
-                listClientConnessi.getLock().unlock();
                 // System.out.println("sono nella task "+output);
             }
             else
