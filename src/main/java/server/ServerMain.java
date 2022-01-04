@@ -17,6 +17,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -26,20 +28,26 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class Server {
+public class ServerMain {
 
     private static final int BUFFER_SIZE = 5000;
-    private static final int DEFAULT_PORT = 1919; // 6666
-    private static final int RegPort = 6666;
     private static final ListUsersConnessi listUsersConnessi = new ListUsersConnessi(); // associa gli id dei client con gli utenti loggati
-    private static final String pathFileConfig ="C:\\Users\\Kartor\\IdeaProjects\\ProgettoReti\\src\\main\\java\\config\\serverConfig.txt";
+    private static final Path pathFileConfig = Paths.get("src/main/java/config/serverConfig.txt");
 
     public static void main(String[] args) throws IOException {
 
-        ConfigField configServer = UtilFile.readConfigurationServer(pathFileConfig); // legge la configurazione ma non la applica
+        // configurazione del server
+        ConfigField configServer = UtilFile.readConfigurationServer(pathFileConfig.toString()); // legge la configurazione ma non la applica
+        // System.out.println(configServer.toString());
         String pathFile = configServer.getPathFile();
         String nameFilePosts = configServer.getNameFilePosts();
         String nameFileUsers = configServer.getNameFileUsers();
+        //= 1919; // 6666
+        int DEFAULT_PORT = configServer.getTcpPort();
+        // = 6666;
+        int regPort = configServer.getRegisterPort();
+        String SERVER_NAME = configServer.getRegisterHost();
+        // System.out.println(SERVER_NAME);
         // creazione lista dei post
         ListPost listPost = new ListPost(pathFile, nameFilePosts);
         // infatti voglio che la lista sia unica per evitare continue modifiche in tutti gli utenti
@@ -58,10 +66,10 @@ public class Server {
         /* Esportazione dell'Oggetto */
         RegisterInterfaceRemote stub = (RegisterInterfaceRemote) UnicastRemoteObject.exportObject(remoteService, 0);
         /* Creazione di un registry sulla porta args[0]*/
-        LocateRegistry.createRegistry(RegPort);
-        Registry r=LocateRegistry.getRegistry(RegPort);
+        LocateRegistry.createRegistry(regPort);
+        Registry r=LocateRegistry.getRegistry(regPort);
         /* Pubblicazione dello stub nel registry */
-        r.rebind("REMOTE-SERVER", stub);
+        r.rebind(SERVER_NAME, stub);
         // System.out.println("Server ready RMI");
         // Thread.sleep(5000);
         // System.out.println("Lista Utente "+ listUser.toString());

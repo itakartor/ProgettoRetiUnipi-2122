@@ -1,6 +1,8 @@
 package client;
 
+import config.ConfigField;
 import server.registerRMI.RegisterInterfaceRemote;
+import util.UtilFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,25 +12,31 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 import java.util.concurrent.ExecutionException;
 
-public class Client{
+public class ClientMain {
 
-    public static int DEFAULT_PORT = 1919;
-    public static int DEFAULT_PORT_RMI = 6666;
+    public static int DEFAULT_PORT = 6666; //1919
+    public static int DEFAULT_PORT_RMI = 7777; //6666
     private static final String ADDRESS = "localhost";
     private static final String SERVER_NAME = "REMOTE-SERVER";
     private static final int BUFFER_SIZE = 5000;
-    public static void main(String[] args) {
-        // configurazione iniziale del client: porta, addres e buffSize
-        int port = DEFAULT_PORT;
-        String ip = ADDRESS;
-        int portRMI = DEFAULT_PORT_RMI;
+    private static final Path pathFileConfig = Paths.get("src/main/java/config/serverConfig.txt");
 
+    public static void main(String[] args) throws IOException {
+
+        // configurazione iniziale del client: porta, addres e buffSize
+        ConfigField configServer = UtilFile.readConfigurationServer(pathFileConfig.toString());
+        int port = configServer.getTcpPort();
+        String ip = configServer.getIpServer();
+        int portRMI = configServer.getRegisterPort();
+        String SERVER_NAME = configServer.getRegisterHost();
 
         RegisterInterfaceRemote remoteService = null;
 

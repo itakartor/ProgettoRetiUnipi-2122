@@ -1,11 +1,18 @@
-import java.io.IOException;
+import config.ConfigField;
+import jdk.jshell.execution.Util;
+import util.UtilFile;
+
+import java.io.*;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Main {
-    public static void main(String[] args) throws IOException, ParseException, InterruptedException {
+    public static void main(String[] args){
         /*ExecutorService service = Executors.newCachedThreadPool();
         for (int i = 0; i < 1; i++) {
             service.submit(new Client());
@@ -116,7 +123,11 @@ public class Main {
 
         Thread.sleep(11000);
         System.out.println(listInt);*/
-
+        /*Path path = Paths.get("src/main/java/config/serverConfig.txt");
+        System.out.println(path.toString());
+        URL url = Main.class.getResource("prova.txt");
+        ConfigField configField = UtilFile.readConfigurationServer(path.toString());
+        System.out.println(configField.toString());*/
     }
 }
 /*

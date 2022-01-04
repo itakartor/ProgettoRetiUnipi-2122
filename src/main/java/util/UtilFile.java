@@ -28,13 +28,13 @@ public class UtilFile {
         return result;
     }
     public static ConfigField readConfigurationServer(String pathFile) throws IOException {
-
         ConfigField config = new ConfigField();
         List<String> listLineRead = readAllLine(pathFile);
         List<String> listLineFiltered = filterLine(listLineRead);
         listLineFiltered.forEach(s -> {
             StringTokenizer st = new StringTokenizer(s,"=");
-            if(s.contains("SERVER"))
+            // System.out.println(s);
+            if(s.contains("SERVER="))
             {
                 st.nextToken();
                 config.setIpServer(st.nextToken());

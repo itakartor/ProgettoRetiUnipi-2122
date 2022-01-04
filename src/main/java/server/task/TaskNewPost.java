@@ -26,7 +26,7 @@ public class TaskNewPost implements Callable<String> {
         if(myUser != null) // se l'utente fosse loggato
         {
             String userId = myUser.getIdUser();
-            Post post = new Post(userId+listPost.getListPost().size(),title,content,userId, myUser.getUsername());
+            Post post = new Post(userId+"-"+listPost.getListPost().size(),title,content,userId, myUser.getUsername());
             listPost.getListPost().add(post);
             // System.out.println(post.toString());
             result = post.toString();
