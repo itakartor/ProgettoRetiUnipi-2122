@@ -20,7 +20,7 @@ public class TaskListUsers implements Callable<String> {
 
     @Override
     public String call() {
-        StringBuilder result = new StringBuilder("[SERVER]:Richiesta list user fallita");
+        StringBuilder result;
         User myUser = this.listUsersConnessi.getListClientConnessi().get(idClient);
         Set<User> resultList = new HashSet<>();
         if(myUser != null) // se l'utente fosse loggato
@@ -48,6 +48,8 @@ public class TaskListUsers implements Callable<String> {
                 }
             }
         }
+        else
+            result = new StringBuilder("[SERVER]: L'utente non e' loggato");
 
         return result.toString();
     }

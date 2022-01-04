@@ -22,7 +22,7 @@ public class TaskShowPost implements Callable<String> {
 
     @Override
     public String call() throws Exception {
-        StringBuilder result = new StringBuilder("[SERVER]:Richiesta show post fallita");
+        StringBuilder result;
         // System.out.println("id client: "+ idClient);
         User myUser = this.listUsersConnessi.getListClientConnessi().get(idClient);
         if(myUser != null) // se l'utente fosse loggato
@@ -41,7 +41,11 @@ public class TaskShowPost implements Callable<String> {
                 result = new StringBuilder("       Post                \n");
                 result.append(resultPost.toStringShowPost());
             }
+            else
+                result = new StringBuilder("[SERVER]: Post "+idPost+" non trovato");
         }
+        else
+            result = new StringBuilder("[SERVER]: Utente non loggato");
         return result.toString();
     }
 }

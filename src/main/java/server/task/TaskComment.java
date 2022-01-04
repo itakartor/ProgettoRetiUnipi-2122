@@ -24,7 +24,7 @@ public class TaskComment implements Callable<String> {
 
     @Override
     public String call() throws Exception {
-        StringBuilder result = new StringBuilder("[SERVER]:Richiesta comment fallita");
+        StringBuilder result;
         User myUser = this.listUsersConnessi.getListClientConnessi().get(idClient);
         if(myUser != null) // se l'utente fosse loggato
         {
@@ -52,6 +52,8 @@ public class TaskComment implements Callable<String> {
                 result = new StringBuilder("[SERVER]: Il post "+ idPost+" non appartiene ai tuoi feed");
             }
         }
+        else
+            result = new StringBuilder("[SERVER]: L'utente non e' loggato");
         return result.toString();
     }
 

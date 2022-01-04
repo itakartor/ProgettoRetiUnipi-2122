@@ -24,7 +24,7 @@ public class TaskRewin implements Callable<String> {
 
     @Override
     public String call() throws Exception {
-        StringBuilder result = new StringBuilder("[SERVER]:Richiesta rewin post "+this.idPost +" fallita");
+        StringBuilder result;
         User myUser = this.listUsersConnessi.getListClientConnessi().get(idClient);
         if(myUser != null) // se l'utente fosse loggato
         {
@@ -53,6 +53,9 @@ public class TaskRewin implements Callable<String> {
             else
                 result = new StringBuilder("[SERVER]:Il post non esiste");
         }
+        else
+            result = new StringBuilder("[SERVER]: L'utente non e' loggato");
+
         return result.toString();
     }
 }

@@ -83,6 +83,7 @@ public class Post {
     public String toStringShowPost() {
         StringBuilder result = new StringBuilder("Titolo: "+this.title +"\n");
         result.append("Contenuto: ").append(this.contenuto).append("\n");
+        result.append("Autore: ").append(this.usernameAutore).append("\n");
         result.append("Voti: ").append(this.positiveVote).append(" positivi, ").append(this.negativeVote).append(" negativi \n");
         result.append("Commenti: ").append("\n");
         if(this.comments.isEmpty())

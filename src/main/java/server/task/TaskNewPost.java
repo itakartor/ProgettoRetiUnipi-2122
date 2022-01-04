@@ -21,7 +21,7 @@ public class TaskNewPost implements Callable<String> {
 
     @Override
     public String call(){
-        String result = "[SERVER]:Richiesta new post fallita ";
+        String result;
         User myUser = this.listUsersConnessi.getListClientConnessi().get(idClient);
         if(myUser != null) // se l'utente fosse loggato
         {
@@ -32,6 +32,8 @@ public class TaskNewPost implements Callable<String> {
             result = post.toString();
             listPost.setListPostModified(true);
         }
+        else
+            result ="[SERVER]: L'utente non e' loggato";
         // resultList.forEach(System.out::println);
 
         return result;

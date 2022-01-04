@@ -232,8 +232,23 @@ public class Server {
                             }
                             case"blog":
                             {
-                                Future<String> future = service.submit(new TaskBlog(listUsersConnessi,idClient, listPost));
-                                output = future.get();
+                                Future<Set<Post>> future = service.submit(new TaskBlog(listUsersConnessi,idClient, listPost));
+                                // se mi ritorna null vuol dire che ci sono stati dei problemi
+                                if(future.get() != null) {// formattazione output
+                                    StringBuilder result = new StringBuilder("    My Blog                \n");
+                                    result.append(" Id Post    |       Titolo  \n-------------------------------------------------------\n");
+                                    if (future.get().isEmpty()) {
+                                        result.append("         Non hai posts        ");
+                                    } else {
+                                        for (Post p : future.get()) {
+                                            result.append(p.toString());
+                                        }
+                                    }
+                                    output = result.toString();
+                                }
+                                else
+                                    output = "[SERVER]: L'utente non e' loggato";
+
                                 break;
                             }  // post <title> <content>.
                             case"post":
@@ -282,13 +297,14 @@ public class Server {
                                     }
                                     case"feed": // è stata cambiata rispetto alle altre task per riutilizzare la funzione di raccolta dei feed
                                     {
-                                        Future<Set<Post>> future = service.submit(new TaskShowFeed(listUsersConnessi,idClient, listPost, remoteService.getListUser()));
+
+                                        Future<Set<Post>> future = service.submit(new TaskShowFeed(listUsersConnessi,idClient, listPost));
                                         StringBuilder result;
                                         if(future.get() != null)
                                         {
                                             // formattazione output
                                             result = new StringBuilder("       Feed                \n");
-                                            result.append("  ID Post   |      Autore     |    Title  \n---------------------------\n");
+                                            result.append("  ID Post   |      Autore     |    Title  \n-------------------------------------------------------\n");
                                             if(future.get().isEmpty())
                                             {
                                                 result.append("         Non hai feed        ");
@@ -352,7 +368,7 @@ public class Server {
                                         output = "[SERVER]: Voto non riconosciuto, forse volevo scrivere +1 o -1";
                                         break;
                                     }
-                                    Set<Post> feed = service.submit(new TaskShowFeed(listUsersConnessi, idClient, listPost, remoteService.getListUser())).get(); // ottengo i feed riutilizzando una task
+                                    Set<Post> feed = service.submit(new TaskShowFeed(listUsersConnessi, idClient, listPost)).get(); // ottengo i feed riutilizzando una task
                                     Future<String> future = service.submit(new TaskRate(listUsersConnessi, idClient, listPost, vote, feed, idPost));
                                     output = future.get();
                                 }
@@ -375,7 +391,7 @@ public class Server {
                                         output = "[SERVER]: Commento non valido";
                                         break;
                                     }
-                                    Set<Post> feed = service.submit(new TaskShowFeed(listUsersConnessi, idClient, listPost, remoteService.getListUser())).get(); // ottengo i feed riutilizzando una task
+                                    Set<Post> feed = service.submit(new TaskShowFeed(listUsersConnessi, idClient, listPost)).get(); // ottengo i feed riutilizzando una task
                                     Future<String> future = service.submit(new TaskComment(listUsersConnessi, idClient, listPost, comment, feed, idPost));
                                     output = future.get();
                                 }
@@ -384,8 +400,10 @@ public class Server {
                             case"add": // non serve a niente è momentanea per verificare i voti e i commenti senza la feature follow
                             {
                                 User myUser = listUsersConnessi.getListClientConnessi().get(idClient);
-                                myUser.addFollowings("2");
-                                output = "[SERVER]:ADD ESEGUITO";
+                                if(myUser != null) {
+                                    myUser.addFollowings("2");
+                                    output = "[SERVER]:ADD ESEGUITO";
+                                }
                                 break;
                             }
                             default:

@@ -7,20 +7,17 @@ import server.resource.User;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
+import java.util.concurrent.*;
 
 public class TaskShowFeed implements Callable<Set<Post>> {
     private final ListUsersConnessi listUsersConnessi;
     private final String idClient;
     private final ListPost listPost;
-    private final Set<User> listUser;
 
-    public TaskShowFeed(ListUsersConnessi listUsersConnessi, String idClient, ListPost listPost, Set<User> listUser) {
+    public TaskShowFeed(ListUsersConnessi listUsersConnessi, String idClient, ListPost listPost) {
         this.listUsersConnessi = listUsersConnessi;
         this.idClient = idClient;
         this.listPost = listPost;
-        this.listUser = listUser;
     }
 
     @Override
@@ -29,12 +26,23 @@ public class TaskShowFeed implements Callable<Set<Post>> {
         Set<Post> resultList = new HashSet<>();
         if(myUser != null) // se l'utente fosse loggato
         {
-            for (User u: listUser) { // recupero tutti i following
-                if(myUser.getFollowings().contains(u.getIdUser())) // verifico se il suo id è contenuto nella lista
-                {// aggiungo alla lista risultante tutti i post dei miei following (persone che seguo)
-                    resultList.addAll(listPost.getListPost().stream().filter(p -> u.getIdUser().equals(p.getIdAutore())).collect(Collectors.toSet()));
+            for (Post p : listPost.getListPost()) { // recupero tutti i following
+                if(myUser.getFollowings().contains(p.getIdAutore()))
+                {
+                    resultList.add(p);
+                }
+                else
+                {
+                    for (String idUser : myUser.getFollowings()) {
+                        if(p.getRewinUser().contains(idUser))
+                        {
+                            resultList.add(p);
+                            break;
+                        }
+                    }
                 }
             }
+
         }
         else // errore l'utente non è connesso correttamente
             return null;

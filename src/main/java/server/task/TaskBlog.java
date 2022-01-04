@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-public class TaskBlog implements Callable<String> {
+public class TaskBlog implements Callable<Set<Post>> {
     private final ListUsersConnessi listUsersConnessi;
     private final String idClient;
     private final ListPost listPost;
@@ -21,34 +21,21 @@ public class TaskBlog implements Callable<String> {
     }
 
     @Override
-    public String call(){
-        StringBuilder result = new StringBuilder("[SERVER]:Richiesta blog fallita");
+    public Set<Post> call(){
         User myUser = this.listUsersConnessi.getListClientConnessi().get(idClient);
         Set<Post> resultList = new HashSet<>();
         if(myUser != null) // se l'utente fosse loggato
         {
-            for (Post p: listPost.getListPost()) {
+            for (Post p: listPost.getListPost()) { // cerco tutti i post di cui sono autore oppure quelli che ho rewinnato
                 if(p.getIdAutore().equals(myUser.getIdUser()) || p.getRewinUser().stream().anyMatch(idUser -> idUser.equals(myUser.getIdUser())))
                 {
                     resultList.add(p);
                 }
             }
-            // formattazione output
-            result = new StringBuilder("    My Blog                \n");
-            result.append(" Id Post    |       Titolo  \n---------------------------\n");
-            if(resultList.isEmpty())
-            {
-                result.append("         Non hai posts        ");
-            }
-            else
-            {
-                for (Post p: resultList) {
-                    result.append(p.toString());
-                }
-            }
-
         }
+        else
+            resultList = null; // l'utente non si è loggato
 
-        return result.toString();
+        return resultList;
     }
 }

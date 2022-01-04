@@ -63,6 +63,8 @@ public class TaskRate implements Callable<String> {
                 result = new StringBuilder("[SERVER]: Il post "+ idPost+" non appartiene ai tuoi feed");
             }
         }
+        else
+            result = new StringBuilder("[SERVER]: L'utente non e' loggato");
         return result.toString();
     }
 }
