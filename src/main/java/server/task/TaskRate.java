@@ -31,7 +31,7 @@ public class TaskRate implements Callable<String> {
         {
             // System.out.println("sono loggato");
             Post myPost = null;
-            for (Post p: this.listPost.getListPost()) { // verifico se esiste il post nella lista
+            for (Post p: feed) { // verifico se esiste il post nella lista dei feed
                 if(p.getIdPost().equals(idPost))
                 {
                     myPost = p;

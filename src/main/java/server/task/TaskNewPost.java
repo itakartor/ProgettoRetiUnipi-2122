@@ -2,7 +2,6 @@ package server.task;
 
 import server.resource.*;
 
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class TaskNewPost implements Callable<String> {
@@ -27,7 +26,7 @@ public class TaskNewPost implements Callable<String> {
         if(myUser != null) // se l'utente fosse loggato
         {
             String userId = myUser.getIdUser();
-            Post post = new Post(userId+listPost.getListPost().size(),title,content,userId);
+            Post post = new Post(userId+listPost.getListPost().size(),title,content,userId, myUser.getUsername());
             listPost.getListPost().add(post);
             // System.out.println(post.toString());
             result = post.toString();

@@ -36,7 +36,7 @@ public class TaskShowPost implements Callable<String> {
             }
             if(resultPost != null) // se ho trovato il post
             {
-                System.out.println(resultPost.toStringShowPost());
+                // System.out.println(resultPost.toStringShowPost());
                 // formattazione output
                 result = new StringBuilder("       Post                \n");
                 result.append(resultPost.toStringShowPost());

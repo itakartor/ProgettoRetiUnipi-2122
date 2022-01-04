@@ -249,7 +249,7 @@ public class Server {
                                     }
                                     else
                                     {
-                                        tokenComando = st.nextToken();
+                                        tokenComando = st.nextToken(); // non è utilizzato e dovrebbe contenere sempre la parola "post "
                                         String title = st.nextToken();
                                         st.nextToken(); // uno spazio vuoto che non serve
                                         String content = st.nextToken();
@@ -266,7 +266,7 @@ public class Server {
                                 {
                                     case"post":
                                     {
-                                        System.out.println("questo è il counter "+st.countTokens());
+                                        // System.out.println("questo è il counter "+st.countTokens());
                                         if(st.countTokens()<1)
                                         {
                                             output = "[ERROR]: per effetuare la funzione show post e' necessario un idPost valido";
@@ -288,7 +288,7 @@ public class Server {
                                         {
                                             // formattazione output
                                             result = new StringBuilder("       Feed                \n");
-                                            result.append("  ID Post   |       Title  \n---------------------------\n");
+                                            result.append("  ID Post   |      Autore     |    Title  \n---------------------------\n");
                                             if(future.get().isEmpty())
                                             {
                                                 result.append("         Non hai feed        ");
@@ -354,6 +354,29 @@ public class Server {
                                     }
                                     Set<Post> feed = service.submit(new TaskShowFeed(listUsersConnessi, idClient, listPost, remoteService.getListUser())).get(); // ottengo i feed riutilizzando una task
                                     Future<String> future = service.submit(new TaskRate(listUsersConnessi, idClient, listPost, vote, feed, idPost));
+                                    output = future.get();
+                                }
+                                break;
+                            }
+                            case"comment":
+                            {
+
+                                if(st.countTokens()<2)
+                                {
+                                    output = "[ERROR]: per effetuare la funzione comment e' necessario idPost e un commento valido ";
+                                }
+                                else {
+                                    String idPost = st.nextToken(); // dopo aver preso l'idPost ritokenizzo per ottenre il commento tra ""
+                                    st = new StringTokenizer(input.getComando(), "\""); // comment idPost "comment"
+                                    st.nextToken(); // parte inutile gia verificata
+                                    String comment = st.nextToken();
+                                    if(comment.length()<1) // commento vuoto
+                                    {
+                                        output = "[SERVER]: Commento non valido";
+                                        break;
+                                    }
+                                    Set<Post> feed = service.submit(new TaskShowFeed(listUsersConnessi, idClient, listPost, remoteService.getListUser())).get(); // ottengo i feed riutilizzando una task
+                                    Future<String> future = service.submit(new TaskComment(listUsersConnessi, idClient, listPost, comment, feed, idPost));
                                     output = future.get();
                                 }
                                 break;

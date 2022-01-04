@@ -9,11 +9,13 @@ public class Post {
     private Integer positiveVote;
     private Integer negativeVote;
     private final String idAutore;
+    private final String usernameAutore;
     private final Set<String> rewinUser; // id user di chi rewin il post
-    private final ArrayList<String> comments;
+    private final Set<Comment> comments;
     private final Set<Vote> ratesUsers;
 
-    public Post(String idPost, String title, String contenuto, String idAutore) {
+    public Post(String idPost, String title, String contenuto, String idAutore, String usernameAutore) {
+        this.usernameAutore = usernameAutore;
         this.ratesUsers = Collections.synchronizedSet(new HashSet<>());
         this.idPost = idPost;
         this.title = title;
@@ -22,7 +24,7 @@ public class Post {
         this.negativeVote = 0;
         this.idAutore = idAutore;
         this.rewinUser = new HashSet<>();
-        this.comments = new ArrayList<>();
+        this.comments = Collections.synchronizedSet(new HashSet<>());
     }
 
     public Set<String> getRewinUser() {
@@ -32,7 +34,11 @@ public class Post {
     public Set<Vote> getRatesUsers() {
         return ratesUsers;
     }
-
+    public void addComment(String idUser, String comment,String username)
+    {
+        Comment newComment = new Comment(idUser,comment,username);
+        this.comments.add(newComment);
+    }
     public void addVote(String idUser, String vote)
     {
         Vote newVote = null;
@@ -68,7 +74,8 @@ public class Post {
     }
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder(this.idPost + "     |     ");
+        StringBuilder result = new StringBuilder(this.idPost + "          |     ");
+        result.append(this.usernameAutore).append("     |     ");
         result.append(this.title);
         result.append("\n");
         return result.toString();
@@ -77,7 +84,17 @@ public class Post {
         StringBuilder result = new StringBuilder("Titolo: "+this.title +"\n");
         result.append("Contenuto: ").append(this.contenuto).append("\n");
         result.append("Voti: ").append(this.positiveVote).append(" positivi, ").append(this.negativeVote).append(" negativi \n");
-        result.append("Commenti: ").append(this.comments.size()).append("\n");
+        result.append("Commenti: ").append("\n");
+        if(this.comments.isEmpty())
+        {
+            result.append(" - Non ci sono commenti");
+        }
+        else {
+            for (Comment c : this.comments) {
+                result.append("     -").append(c.getUsername()).append(": ").append("\"").append(c.getContent()).append("\"").append("\n");
+            }
+        }
+
         return result.toString();
     }
 
