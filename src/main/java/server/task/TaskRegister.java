@@ -15,12 +15,12 @@ import java.util.concurrent.locks.ReentrantLock;
 public class TaskRegister implements Callable<Boolean> {
     private final String comando;
     private final ListUser listUser;
-    private final ReentrantLock lock;
+    /*private final ReentrantLock lock;*/
 
     public TaskRegister(String comando, ListUser listUser) {
         this.comando = comando;
         this.listUser = listUser;
-        this.lock = this.listUser.getLock();
+        /*this.lock = this.listUser.getLock();*/
     }
 
     @Override // in caso che la lista sia null per vari problemi di file andrebbe cancellato il file e ricreato, ma non so se sia possibile
@@ -70,7 +70,7 @@ public class TaskRegister implements Callable<Boolean> {
 
             // se tutti i controlli specifici sui campi sono andati a buon fine
 
-            this.lock.lock();
+            /*this.lock.lock();*/
             for(User u : this.listUser.getListUser()) // controllo se l'utente è gia registato
             {
                 if (u.getUsername().equals(username)) {
@@ -86,8 +86,8 @@ public class TaskRegister implements Callable<Boolean> {
                 }
             }
 
-            if(!ok)
-                this.lock.unlock();
+            /*if(!ok)
+                this.lock.unlock();*/
         }
         if(ok)
         {
@@ -96,7 +96,7 @@ public class TaskRegister implements Callable<Boolean> {
             this.listUser.addUser(newUser);
             this.listUser.setModified(true); // dico al sistema che ho modificato la lista degli utenti
             System.out.println("[SERVER]: Registrazione avvenuta con successo: "+ newUser);
-            this.lock.unlock();
+            /*this.lock.unlock();*/
         }
         else
             System.out.println("[CONSOLE]: usage- register <USERNAME> <PASSWORD> <TAG1> [<TAG2>] [<TAG3>] [<TAG4>] [<TAG5>]");

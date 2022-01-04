@@ -8,13 +8,13 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ListUser {
     private String timeStamp;
     private Set<User> listUsers;
-    private final ReentrantLock lock;
+    /*private final ReentrantLock lock;*/
     private boolean modified;
 
     public ListUser() {
         this.listUsers = Collections.synchronizedSet(new HashSet<>());
         this.modified = false;
-        this.lock = new ReentrantLock();
+        /*this.lock = new ReentrantLock();*/
     }
 
     public Set<User> getListUser() {
@@ -43,9 +43,9 @@ public class ListUser {
         this.listUsers.add(user);
     }
 
-    public ReentrantLock getLock() {
+    /*public ReentrantLock getLock() {
         return lock;
-    }
+    }*/
 
     public boolean isModified() {
         return modified;
