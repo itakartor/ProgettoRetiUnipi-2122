@@ -27,6 +27,23 @@ public class User {
     {
         this.followings.add(idUser);
     }
+
+    public void addFollower(String idUser) {
+        this.followers.add(idUser);
+    }
+
+    public void removeFollowing(String idUser) {
+        this.followings.remove(idUser);
+    }
+
+    public void removeFollower(String idUser) {
+        this.followers.remove(idUser);
+    }
+
+    public Set<String> getFollowers() {
+        return followers;
+    }
+
     public String getUsername()
     {
         return this.username;
@@ -66,4 +83,7 @@ public class User {
     public Set<String> getTags() {
         return tags;
     }
+
+
+
 }

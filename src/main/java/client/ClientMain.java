@@ -1,6 +1,8 @@
 package client;
 
 import config.ConfigField;
+import server.registerRMI.ClientRemoteInterface;
+import server.registerRMI.ClientRemoteInterfaceImpl;
 import server.registerRMI.RegisterInterfaceRemote;
 import util.UtilFile;
 
@@ -18,14 +20,10 @@ import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.ExecutionException;
 
 public class ClientMain {
-
-    public static int DEFAULT_PORT = 6666; //1919
-    public static int DEFAULT_PORT_RMI = 7777; //6666
-    private static final String ADDRESS = "localhost";
-    private static final String SERVER_NAME = "REMOTE-SERVER";
     private static final int BUFFER_SIZE = 5000;
     private static final Path pathFileConfig = Paths.get("src/main/java/config/serverConfig.txt");
 
@@ -60,9 +58,17 @@ public class ClientMain {
             }
             // fine configurazione RMI
 
+            /* si registra per la callback */
+            System.out.println("Registering for callback");
+            ClientRemoteInterface callbackObj = new ClientRemoteInterfaceImpl();
+            ClientRemoteInterface stub = (ClientRemoteInterface) UnicastRemoteObject.exportObject(callbackObj, 0);
+            remoteService.registerForCallback(stub);
+
             // configurazione per l'apertura/accettazione della connessione con il server
             SocketAddress address = new InetSocketAddress(ip, port); // socket per la connessione col server
             SocketChannel client = SocketChannel.open(address); // apertura connessione
+            System.out.println("QUESTO è L'ID: "+client.socket().getInputStream().toString().substring(client.socket().getInputStream().toString().lastIndexOf("@") + 1 ));
+
             client.configureBlocking(true); // configurazione bloccante
             input = new BufferedReader(new InputStreamReader(System.in)); // per richiedere all'utente un comando da mandare al server
             buffer = ByteBuffer.wrap(new byte[BUFFER_SIZE]); // mette un byte all'interno del buffer

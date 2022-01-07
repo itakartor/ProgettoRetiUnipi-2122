@@ -215,7 +215,9 @@ public class ServerMain {
                                     }
                                     case"followers":
                                     {
-                                        output = "";
+                                        Future<String> future = service.submit(new TaskListFollowers(remoteService.getListUser(),listUsersConnessi,idClient));
+                                        output = future.get();
+                                        System.out.println(output);
                                         break;
                                     }
                                     case"following":
@@ -235,7 +237,20 @@ public class ServerMain {
                             case"follow": // follow username idClient
                             {
                                 String username = st.nextToken();
-                                Future<String> future;
+                                Future<String> future = service.submit(new TaskFollowUser(username, idClient, remoteService.getListUser(), listUsersConnessi));
+                                output = future.get();
+                                System.out.println(output);
+                                remoteService.update("nuovo evento");
+                                break;
+                            }
+                            case"unfollow": // follow username idClient
+                            {
+                                String username = st.nextToken();
+                                Future<String> future = service.submit(new TaskUnfollowUser(username, idClient, remoteService.getListUser(), listUsersConnessi));
+                                output = future.get();
+                                System.out.println(output);
+                                remoteService.update("nuovo evento");
+
                                 break;
                             }
                             case"blog":
@@ -409,7 +424,7 @@ public class ServerMain {
                             {
                                 User myUser = listUsersConnessi.getListClientConnessi().get(idClient);
                                 if(myUser != null) {
-                                    myUser.addFollowings("2");
+                                    //myUser.addFollowings("2");
                                     output = "[SERVER]:ADD ESEGUITO";
                                 }
                                 break;
