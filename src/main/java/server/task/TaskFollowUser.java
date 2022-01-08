@@ -1,5 +1,6 @@
 package server.task;
 
+import server.resource.ListUser;
 import server.resource.ListUsersConnessi;
 import server.resource.User;
 
@@ -8,13 +9,13 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class TaskFollowUser implements Callable<String> {
-    private final String username;
+    private final String usernameToFollow;
     private final String idClient;
-    private final Set<User> listUsers;
+    private final ListUser listUsers;
     private final ListUsersConnessi listUsersConnessi;
 
-    public TaskFollowUser(String username, String idClient, Set<User> listUsers, ListUsersConnessi listUsersConnessi) {
-        this.username = username;
+    public TaskFollowUser(String usernameToFollow, String idClient, ListUser listUsers, ListUsersConnessi listUsersConnessi) {
+        this.usernameToFollow = usernameToFollow;
         this.idClient = idClient;
         this.listUsers = listUsers;
         this.listUsersConnessi = listUsersConnessi;
@@ -27,31 +28,31 @@ public class TaskFollowUser implements Callable<String> {
         if(myUser != null) // se l'utente fosse loggato
         {
             User userToFollow = null; //cerco l'utente da seguire
-            for(User i : listUsers) {
-                System.out.println("Sto controllando utente "+ i.getUsername());
-                if(i.getUsername().equals(this.username))
+            for(User i : listUsers.getListUser()) {
+                if(i.getUsername().equals(this.usernameToFollow))
                     userToFollow = i;
             }
-            if(myUser != null && myUser.getFollowings().contains(userToFollow.getIdUser())) { //l'utente segue già l'altro utente, errore
-                result = new StringBuilder("[Server]: errore: utente già seguito");
-            } else {
-
-                if(userToFollow == null) { //utente non trovato
-                    result = new StringBuilder("[Server] errore: utente da seguire " + username + " non trovato");
-                } else if (userToFollow.getIdUser().equals(myUser.getIdUser())) {
-                    result = new StringBuilder("[Server] errore: un utente non può seguire se stesso");
-                } else {
+            if(userToFollow != null) // se ho trovato l'utente che voglio seguire
+            {
+                if(myUser.getFollowings().contains(userToFollow.getIdUser())) { // seguo di gia l'utente
+                    result = new StringBuilder("[ERROR]: Utente "+ this.usernameToFollow + " non lo puoi seguire due volte");
+                }
+                else if (userToFollow.getIdUser().equals(myUser.getIdUser())) { // se l'utente prova a seguire se stesso
+                    result = new StringBuilder("[ERROR]: Non puoi seguire te stesso");
+                }
+                else { // se tutto è andato a buon fine
                     myUser.addFollowings(userToFollow.getIdUser());
                     userToFollow.addFollower(myUser.getIdUser());
-                    result = new StringBuilder("[Server] utente seguito con successo");
+                    this.listUsers.setModified(true); // dico che la lista degli utenti è stata modificata
+                    result = new StringBuilder("[SERVER]: L'utente "+this.usernameToFollow + " e' stato aggiunto ai tuoi followings" );
                 }
             }
-
+            else
+                result = new StringBuilder("[SERVER]: Utente " + usernameToFollow + " non esiste");
         }
         else
             result = new StringBuilder("[SERVER]: L'utente non e' loggato");
 
         return result.toString();
-        //return null;
     }
 }

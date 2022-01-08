@@ -1,7 +1,9 @@
 package server.task;
 
 import server.resource.ListUser;
+import server.resource.ListWallet;
 import server.resource.User;
+import server.resource.Wallet;
 import util.Generators;
 
 import java.util.HashSet;
@@ -10,17 +12,16 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class TaskRegister implements Callable<Boolean> {
     private final String comando;
     private final ListUser listUser;
-    /*private final ReentrantLock lock;*/
+    private final ListWallet listWallet;
 
-    public TaskRegister(String comando, ListUser listUser) {
+    public TaskRegister(String comando, ListUser listUser, ListWallet listWallet) {
         this.comando = comando;
         this.listUser = listUser;
-        /*this.lock = this.listUser.getLock();*/
+        this.listWallet = listWallet;
     }
 
     @Override // in caso che la lista sia null per vari problemi di file andrebbe cancellato il file e ricreato, ma non so se sia possibile
@@ -70,7 +71,6 @@ public class TaskRegister implements Callable<Boolean> {
 
             // se tutti i controlli specifici sui campi sono andati a buon fine
 
-            /*this.lock.lock();*/
             for(User u : this.listUser.getListUser()) // controllo se l'utente è gia registato
             {
                 if (u.getUsername().equals(username)) {
@@ -85,18 +85,19 @@ public class TaskRegister implements Callable<Boolean> {
                     ok = false;
                 }
             }
-
-            /*if(!ok)
-                this.lock.unlock();*/
         }
         if(ok)
         {
             String seed = Generators.getRandomString();
-            User newUser = new User(username,listTags, this.listUser.getListUser().size()+1, Generators.sha256(password + seed), seed);
+            int id = this.listUser.getListUser().size()+1;
+
+            Wallet wallet = new Wallet("W"+id,id);
+            this.listWallet.addWallet(wallet);
+            User newUser = new User(username,listTags, this.listUser.getListUser().size()+1, Generators.sha256(password + seed), seed, "W"+id);
             this.listUser.addUser(newUser);
             this.listUser.setModified(true); // dico al sistema che ho modificato la lista degli utenti
+            this.listWallet.setModified(true);
             System.out.println("[SERVER]: Registrazione avvenuta con successo: "+ newUser);
-            /*this.lock.unlock();*/
         }
         else
             System.out.println("[CONSOLE]: usage- register <USERNAME> <PASSWORD> <TAG1> [<TAG2>] [<TAG3>] [<TAG4>] [<TAG5>]");

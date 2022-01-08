@@ -81,10 +81,22 @@ public class UtilFile {
                 st.nextToken();
                 config.setNameFilePosts(st.nextToken());
             }
-
+            else if(s.contains("WALLETFILE"))
+            {
+                st.nextToken();
+                config.setNameFileWallets(st.nextToken());
+            }
+            else if(s.contains("PERCCUR"))
+            {
+                st.nextToken();
+                config.setPercCuratore(Integer.parseInt(st.nextToken()));
+            }else if(s.contains("PERCAU"))
+            {
+                st.nextToken();
+                config.setPercAutore(Integer.parseInt(st.nextToken()));
+            }
 
         });
-        // System.out.println(config.toString());
         return config;
     }
 }

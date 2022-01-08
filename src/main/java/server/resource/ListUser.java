@@ -1,5 +1,6 @@
 package server.resource;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,7 +10,6 @@ public class ListUser {
     private String timeStamp;
     private Set<User> listUsers;
     private boolean modified;
-
     public ListUser() {
         this.listUsers = Collections.synchronizedSet(new HashSet<>());
         this.modified = false;

@@ -42,8 +42,8 @@ public class TaskListFollowing implements Callable<String> {
             }
             else
             {
-                for (User p: resultList) {
-                    result.append(p.toString());
+                for (User u: resultList) {
+                    result.append(u.toString());
                 }
             }
         }

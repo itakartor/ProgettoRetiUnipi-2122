@@ -18,4 +18,5 @@ public class ListUsersConnessi {
     public void putListClientConnessi(String key, User value) {
         this.listClientConnessi.put(key,value);
     }
+
 }

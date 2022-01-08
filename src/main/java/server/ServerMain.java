@@ -42,6 +42,18 @@ public class ServerMain {
         String pathFile = configServer.getPathFile();
         String nameFilePosts = configServer.getNameFilePosts();
         String nameFileUsers = configServer.getNameFileUsers();
+        String nameFileWallets = configServer.getNameFileWallets();
+        String ipMulticast = configServer.getMulticastIp();
+        Integer portMulticast = configServer.getMulticastPort();
+        Integer percAutore = configServer.getPercAutore();
+        Integer percCuratore = configServer.getPercCuratore();
+        Integer udpPort = configServer.getUdpPort();
+        Integer msTimetout = configServer.getMsTimeout();
+        if (percCuratore + percAutore > 100)
+        {
+            System.out.println("[ERROR]: Le percentuali preimpostate nel server config superano il 100%");
+            throw new IOException("[ERROR]: Le percentuali preimpostate per le ricompense nel file serverConfig.txt superano il 100%");
+        }
         //= 1919; // 6666
         int DEFAULT_PORT = configServer.getTcpPort();
         // = 6666;
@@ -50,16 +62,17 @@ public class ServerMain {
         // System.out.println(SERVER_NAME);
         // creazione lista dei post
         ListPost listPost = new ListPost(pathFile, nameFilePosts);
+        ListWallet listWallets = new ListWallet(pathFile, nameFileWallets);
         // infatti voglio che la lista sia unica per evitare continue modifiche in tutti gli utenti
         // ed evitare problemi di sincronizzazione attraverso operazioni come voto, commento o delete
 
 
         // parte RMI
         // Creazione di un'istanza dell'oggetto remote
-        RegisterInterfaceRemoteImpl remoteService = new RegisterInterfaceRemoteImpl(pathFile,nameFileUsers);
+        RegisterInterfaceRemoteImpl remoteService = new RegisterInterfaceRemoteImpl(pathFile,nameFileUsers,listWallets);
 
         // thread dedito al salvataggio della lista con i vari cambiamenti, in modo tale da evitare sprechi
-        Thread threadSave = new Thread(new TaskSave(configServer.getMsTimeout(), pathFile, nameFileUsers, nameFilePosts, remoteService.getObjectListUser(), listPost));
+        Thread threadSave = new Thread(new TaskSave(msTimetout, pathFile, nameFileUsers, nameFilePosts, nameFileWallets, remoteService.getObjectListUser(), listPost, listWallets));
         threadSave.setDaemon(true); // è demone così se il programma viene terminato non aspetta
         threadSave.start();
 
@@ -76,6 +89,11 @@ public class ServerMain {
 
         // inizializzazione di un pool di thread
         ExecutorService service = Executors.newCachedThreadPool();
+
+        // thread per il guadagno di tutti gli utenti
+        Thread threadEarn = new Thread(new TaskEarn(ipMulticast, portMulticast, udpPort, percCuratore,percAutore, msTimetout, listPost, listWallets));
+        threadEarn.setDaemon(true);
+        threadEarn.start();
 
         //socket, selector e channel
         ServerSocketChannel serverChannel; //socket del server
@@ -134,7 +152,7 @@ public class ServerMain {
                     } else if (key.isReadable()) {
                         // legge il contenuto
                         // MEGA SWOTHC DELLA MORTE CON I FULMINI
-                        String output = null; // stringa da modificare per rispondere al client
+                        String output; // stringa da modificare per rispondere al client
                         Comando input = leggiCanale(selector, key);
                         String idClient = input.getIdClient();
                         StringTokenizer st;
@@ -147,11 +165,25 @@ public class ServerMain {
                         // per ogni comando viene creata una task(Callable) che restituisce una risposta da inviare al client
                         switch (tokenComando)
                         {
+                            case"primo":
+                            {
+                                // System.out.println("sono nella accettazione client");
+                                System.out.println("[SERVER]: Id del client durante l'accettazione " + idClient);
+                                output = idClient;
+                                break;
+                            }
                             case"!quit": // in caso che il client invii !quit rimuovo la sua connessione dalla lista
                             {
                                 // System.out.println(listUsersConnessi.getListClientConnessi().toString());
+                                Future<String> future = service.submit(new TaskLogout(idClient,listUsersConnessi)); // faccio prima la logout e poi rimuovo il client
                                 listUsersConnessi.getListClientConnessi().remove(idClient);
                                 // System.out.println(listUsersConnessi.getListClientConnessi().toString());
+                                key.cancel();
+                                try {
+                                    key.channel().close();
+                                } catch (IOException cex) {
+                                    cex.printStackTrace();
+                                }
                                 continue;
                             }
                             case"login":
@@ -234,22 +266,21 @@ public class ServerMain {
                                 }
                                 break;
                             }
-                            case"follow": // follow username idClient
+                            case"follow": // follow username
                             {
                                 String username = st.nextToken();
-                                Future<String> future = service.submit(new TaskFollowUser(username, idClient, remoteService.getListUser(), listUsersConnessi));
+                                Future<String> future = service.submit(new TaskFollowUser(username, idClient, remoteService.getObjectListUser(), listUsersConnessi));
                                 output = future.get();
-                                System.out.println(output);
-                                remoteService.update("nuovo evento");
+                                if(listUsersConnessi.getListClientConnessi().get(idClient) != null)
+                                    remoteService.update("l'utente " + listUsersConnessi.getListClientConnessi().get(idClient).getUsername()+" ha iniziato a seguirti",listUsersConnessi,username);
                                 break;
                             }
                             case"unfollow": // follow username idClient
                             {
                                 String username = st.nextToken();
-                                Future<String> future = service.submit(new TaskUnfollowUser(username, idClient, remoteService.getListUser(), listUsersConnessi));
+                                Future<String> future = service.submit(new TaskUnfollowUser(username, idClient, remoteService.getObjectListUser(), listUsersConnessi));
                                 output = future.get();
-                                System.out.println(output);
-                                remoteService.update("nuovo evento");
+                                remoteService.update("l'utente " + listUsersConnessi.getListClientConnessi().get(idClient).getUsername()+" ha smesso di seguirti",listUsersConnessi,username);
 
                                 break;
                             }
@@ -420,12 +451,26 @@ public class ServerMain {
                                 }
                                 break;
                             }
-                            case"add": // non serve a niente è momentanea per verificare i voti e i commenti senza la feature follow
+                            case"wallet":
                             {
-                                User myUser = listUsersConnessi.getListClientConnessi().get(idClient);
-                                if(myUser != null) {
-                                    //myUser.addFollowings("2");
-                                    output = "[SERVER]:ADD ESEGUITO";
+                                String token;
+                                try
+                                {
+                                    token = st.nextToken();
+                                    if(token.equals("btc"))// se è pieno ed uguale a btc eseguo l'altra funzione
+                                    {
+                                        Future<String> future = service.submit(new TaskWalletBTC(listUsersConnessi, idClient,listWallets));
+                                        output = future.get();
+                                    }
+                                    else // se il comando è stato inserito in modo errato
+                                    {
+                                        output = "[ERROR]: Comando wallet errato";
+                                    }
+                                }
+                                catch (NoSuchElementException e) // se non trova il token dopo la parola wallet fa la taskWallet, altrimenti controlla per wallet btc
+                                {
+                                    Future<String> future = service.submit(new TaskWallet(listUsersConnessi, idClient,listWallets));
+                                    output = future.get();
                                 }
                                 break;
                             }
@@ -440,8 +485,12 @@ public class ServerMain {
                         {
                             output = "[ERROR]:OUTPUT NULL";
                         }
+                        // System.out.println("questo e' l'output " +output);
+                        // System.out.println(buffer.toString());
                         buffer.put(output.getBytes(StandardCharsets.UTF_8));
+                        // System.out.println(buffer.toString());
                         buffer.flip();
+                        // System.out.println(buffer.toString());
                     }else if(key.isWritable()){
                         scritturaCanale(selector, key);// scrive il contenuto
                     }
@@ -483,11 +532,6 @@ public class ServerMain {
 
         int nCaratteriLetti = client.read(buffer); // legge dal client
 
-        //login username password idClient
-
-        /*buffer.put(" ".getBytes(StandardCharsets.UTF_8));
-        buffer.put(clientId.getBytes(StandardCharsets.UTF_8)); // server nel login per controllare l'id del client
-        */                                                        // viene utilizzato spesso per ottenere le info dell'utente
         // System.out.println("[SERVER]:ho letto tot caratteri" + nCaratteriLetti);
         if(nCaratteriLetti < 0){
             client.close();
@@ -500,7 +544,7 @@ public class ServerMain {
             buffer.flip();
             while (buffer.hasRemaining()) inputString.append((char) buffer.get()); // legge cose
 
-            // System.out.println("[SERVER]:HO RICEVUTO DAL CLIENT QUESTO: "+inputString);
+            // System.out.println("[SERVER]:HO RICEVUTO DAL CLIENT QUESTO: "+inputString.toString());
             buffer.clear();
             // buffer.flip();//pronto per scrivere
             client.register(sel, SelectionKey.OP_WRITE, buffer); // dico al server che dovrà scrivere qualcosa al client
@@ -509,11 +553,16 @@ public class ServerMain {
     }
 
     private static void scritturaCanale(Selector sel, SelectionKey selectionKey) throws IOException {
+        StringBuilder inputString = new StringBuilder();
         SocketChannel client;
         client = (SocketChannel) selectionKey.channel();
         client.configureBlocking(false);
         ByteBuffer buffer = (ByteBuffer) selectionKey.attachment();
-        client.write(buffer); // scrive al client quello che c'+ nel buffer
+        // System.out.println("scrittura "+buffer.toString());
+        while (buffer.hasRemaining()) inputString.append((char) buffer.get());
+        System.out.println("[DEBUG]: Scrittura del server: "+inputString);
+        buffer.flip();
+        client.write(buffer); // scrive al client quello che c'e nel buffer
         buffer.clear();
         client.register(sel, SelectionKey.OP_READ, buffer);  // aspetta di leggere qualcosa dal client
     }

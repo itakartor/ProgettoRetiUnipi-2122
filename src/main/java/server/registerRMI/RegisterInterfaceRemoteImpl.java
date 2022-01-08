@@ -3,7 +3,10 @@ package server.registerRMI;
 import GestioneJson.CreatoreJson;
 import GestioneJson.LeggiJson;
 import server.resource.ListUser;
+import server.resource.ListUsersConnessi;
+import server.resource.ListWallet;
 import server.resource.User;
+import server.task.TaskNotifyFollow;
 import server.task.TaskRegister;
 
 import java.io.IOException;
@@ -15,13 +18,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class RegisterInterfaceRemoteImpl implements RegisterInterfaceRemote{
-    private List<ClientRemoteInterface> clients;
+    private final Set<ClientRemoteInterface> clients;
 
     ExecutorService service = Executors.newCachedThreadPool();
     //listaUtenti
     private final ListUser listUser = new ListUser();
-    public RegisterInterfaceRemoteImpl(String pathFile,String nameFile) throws IOException {
-        clients = new ArrayList<ClientRemoteInterface>( );
+    private final ListWallet listWallet;
+    public RegisterInterfaceRemoteImpl(String pathFile,String nameFile,ListWallet listWallet) throws IOException {
+        this.listWallet = listWallet;
+        clients = Collections.synchronizedSet(new HashSet<>());
         switch (CreatoreJson.creazioneFile(pathFile,nameFile))
         {
             case 0:
@@ -49,12 +54,7 @@ public class RegisterInterfaceRemoteImpl implements RegisterInterfaceRemote{
     // ricevo tutta la stringa del comando e poi controllo se è composta dai giusti parametri
     @Override
     public boolean register(String comando) throws ExecutionException, InterruptedException {
-        Future<Boolean> future = service.submit(new TaskRegister(comando,this.listUser));
-        // System.out.println(future.get());
-        /*if(future.get())
-        {
-            CreatoreJson.AggiornametoFileUsers(pathFile,nameFile,this.listUser.getListUser());
-        }*/
+        Future<Boolean> future = service.submit(new TaskRegister(comando,this.listUser, listWallet));
         return future.get();
     }
 
@@ -89,21 +89,8 @@ public class RegisterInterfaceRemoteImpl implements RegisterInterfaceRemote{
         }
     }
 
-    public void update(String value) throws RemoteException
+    public void update(String message, ListUsersConnessi listUsersConnessi, String username) throws RemoteException
     {
-        doCallbacks(value);
-    }
-    private synchronized void doCallbacks(String value) throws RemoteException
-    {
-        //System.out.println("Starting callbacks.");
-        Iterator<ClientRemoteInterface> i = clients.iterator( );
-        //int numeroClienti = clients.size( );
-        while (i.hasNext()) {
-            ClientRemoteInterface client = (ClientRemoteInterface) i.next();
-            //if(client.)
-            System.out.println(client.toString()); //client.toString();
-            client.notifyEvent(value);
-        }
-        //System.out.println("Callbacks complete.");
+        service.submit(new TaskNotifyFollow(username,message, clients, listUsersConnessi));
     }
 }

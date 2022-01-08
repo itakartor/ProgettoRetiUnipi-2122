@@ -1,0 +1,107 @@
+{
+  "listPost": [
+    {
+      "idPost": "1-0",
+      "title": "il mio primo post",
+      "contenuto": "cioa mamma",
+      "positiveVote": 1,
+      "negativeVote": 0,
+      "idAutore": "1",
+      "usernameAutore": "pg",
+      "rewinUser": [],
+      "comments": [
+        {
+          "idUser": "3",
+          "content": "ciao bella bro",
+          "newComment": false,
+          "username": "pg3"
+        },
+        {
+          "idUser": "3",
+          "content": "sono felice",
+          "newComment": true,
+          "username": "pg3"
+        }
+      ],
+      "ratesUsers": [
+        {
+          "idUser": "2",
+          "vote": true,
+          "newVote": false
+        }
+      ],
+      "counterEvaluete": 2.0
+    },
+    {
+      "idPost": "1-1",
+      "title": "mi diverto",
+      "contenuto": "davvero tanto",
+      "positiveVote": 1,
+      "negativeVote": 0,
+      "idAutore": "1",
+      "usernameAutore": "pg",
+      "rewinUser": [],
+      "comments": [
+        {
+          "idUser": "3",
+          "content": "hey",
+          "newComment": false,
+          "username": "pg3"
+        },
+        {
+          "idUser": "2",
+          "content": "weeee",
+          "newComment": false,
+          "username": "pg2"
+        }
+      ],
+      "ratesUsers": [
+        {
+          "idUser": "2",
+          "vote": true,
+          "newVote": false
+        }
+      ],
+      "counterEvaluete": 1.0
+    },
+    {
+      "idPost": "1-2",
+      "title": "il wallet f",
+      "contenuto": "che bello",
+      "positiveVote": 2,
+      "negativeVote": 0,
+      "idAutore": "1",
+      "usernameAutore": "pg",
+      "rewinUser": [],
+      "comments": [
+        {
+          "idUser": "3",
+          "content": "di piu",
+          "newComment": false,
+          "username": "pg3"
+        },
+        {
+          "idUser": "3",
+          "content": "il mio e bello",
+          "newComment": true,
+          "username": "pg3"
+        }
+      ],
+      "ratesUsers": [
+        {
+          "idUser": "2",
+          "vote": true,
+          "newVote": false
+        },
+        {
+          "idUser": "3",
+          "vote": true,
+          "newVote": false
+        }
+      ],
+      "counterEvaluete": 1.0
+    }
+  ],
+  "listPostModified": true,
+  "timeStamp": "Sat Jan 08 19:10:45 CET 2022"
+}

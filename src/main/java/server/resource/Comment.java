@@ -32,4 +32,14 @@ public class Comment {
     public boolean isNewComment() {
         return newComment;
     }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "idUser='" + idUser + '\'' +
+                ", content='" + content + '\'' +
+                ", newComment=" + newComment +
+                ", username='" + username + '\'' +
+                '}';
+    }
 }

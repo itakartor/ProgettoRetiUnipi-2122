@@ -1,8 +1,8 @@
 package server.resource;
 
 public class Vote {
-    private String idUser;
-    private boolean vote;
+    private final String idUser;
+    private final boolean vote;
     private boolean newVote;
 
     public Vote(String idUser, boolean vote) {
@@ -25,5 +25,14 @@ public class Vote {
 
     public void setNewVote(boolean newVote) {
         this.newVote = newVote;
+    }
+
+    @Override
+    public String toString() {
+        return "Vote{" +
+                "idUser='" + idUser + '\'' +
+                ", vote=" + vote +
+                ", newVote=" + newVote +
+                '}';
     }
 }

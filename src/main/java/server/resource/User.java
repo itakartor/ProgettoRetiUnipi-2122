@@ -1,5 +1,6 @@
 package server.resource;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -12,17 +13,19 @@ public class User {
     private final String seed;
     private final Set<String> followings;
     private final Set<String> followers;
+    private final String idWallet;
 
-    public User(String username, Set<String> tags, Integer idUser, String hashPassword, String seed) {
+    public User(String username, Set<String> tags, Integer idUser, String hashPassword, String seed, String idWallet) {
         this.username = username;
         this.idUser = String.valueOf(idUser);
         this.tags = tags;
-        this.followers = new HashSet<>();
-        this.followings = new HashSet<>();
+        this.idWallet = idWallet;
+        this.followers = Collections.synchronizedSet(new HashSet<>());
+        this.followings = Collections.synchronizedSet(new HashSet<>());
         this.seed = seed;
         this.hashPassword = hashPassword;
     }
-
+    // nelle lista followings e followers metto gli username così da evitare una doppia ricerca in caso che l'utente li richiami
     public void addFollowings(String idUser)
     {
         this.followings.add(idUser);
@@ -63,6 +66,10 @@ public class User {
 
     public String getHashPassword() {
         return hashPassword;
+    }
+
+    public String getIdWallet() {
+        return idWallet;
     }
 
     @Override

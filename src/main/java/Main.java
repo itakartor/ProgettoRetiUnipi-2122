@@ -7,6 +7,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -37,7 +38,7 @@ public class Main {
         listUserinUser.add(user4);
         listUserinUser.add(user5);
 
-        SimpleDateFormat formatDate = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         listUser = new ListUser(formatDate.format(new Date()),listUserinUser);
 
         CreatoreJson.AggiornametoFileUsers(pathFile,nomeFile,listUserinUser);

@@ -12,9 +12,35 @@ public class ConfigField {
     private String pathFile;
     private String nameFileUsers;
     private String nameFilePosts;
-
+    private String nameFileWallets;
+    private int percCuratore;
+    private int percAutore;
 
     public ConfigField() {
+    }
+
+    public int getPercCuratore() {
+        return percCuratore;
+    }
+
+    public void setPercCuratore(int percCuratore) {
+        this.percCuratore = percCuratore;
+    }
+
+    public int getPercAutore() {
+        return percAutore;
+    }
+
+    public void setPercAutore(int percAutore) {
+        this.percAutore = percAutore;
+    }
+
+    public String getNameFileWallets() {
+        return nameFileWallets;
+    }
+
+    public void setNameFileWallets(String nameFileWallets) {
+        this.nameFileWallets = nameFileWallets;
     }
 
     public String getIpServer() {
@@ -119,6 +145,7 @@ public class ConfigField {
                 ", pathFile='" + pathFile + '\'' +
                 ", nameFileUsers='" + nameFileUsers + '\'' +
                 ", nameFilePosts='" + nameFilePosts + '\'' +
+                ", nameFileWallets='" + nameFileWallets + '\'' +
                 '}';
     }
 }

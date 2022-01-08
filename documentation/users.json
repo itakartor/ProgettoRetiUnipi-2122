@@ -1,0 +1,53 @@
+{
+  "timeStamp": "Sat Jan 08 18:45:56 CET 2022",
+  "listUsers": [
+    {
+      "username": "pg",
+      "idUser": "1",
+      "tags": [
+        "a",
+        "b",
+        "c"
+      ],
+      "hashPassword": "ec75961ff7211b2cc009d6aa3a2414ad081b190f18db0e74aff621c4a365791a",
+      "seed": "ezsmtdrhtt",
+      "followings": [],
+      "followers": [
+        "2",
+        "3"
+      ],
+      "idWallet": "W1"
+    },
+    {
+      "username": "pg3",
+      "idUser": "3",
+      "tags": [
+        "a"
+      ],
+      "hashPassword": "44744d80d3483027da7ee771bb9ac4762b270b5c4e9d0d13d16996869828e286",
+      "seed": "hspamkhrdt",
+      "followings": [
+        "1"
+      ],
+      "followers": [],
+      "idWallet": "W3"
+    },
+    {
+      "username": "pg2",
+      "idUser": "2",
+      "tags": [
+        "b",
+        "d",
+        "f"
+      ],
+      "hashPassword": "0674d3349ff8d94153243d459317a9c14f3f9997b26c64e8a3ff17dfa9a9fc30",
+      "seed": "oqujpkfuxb",
+      "followings": [
+        "1"
+      ],
+      "followers": [],
+      "idWallet": "W2"
+    }
+  ],
+  "modified": true
+}

@@ -13,9 +13,11 @@ public class Post {
     private final Set<String> rewinUser; // id user di chi rewin il post
     private final Set<Comment> comments;
     private final Set<Vote> ratesUsers;
+    private Double counterEvaluete;
 
     public Post(String idPost, String title, String contenuto, String idAutore, String usernameAutore) {
         this.usernameAutore = usernameAutore;
+        this.counterEvaluete = (double) 0;
         this.ratesUsers = Collections.synchronizedSet(new HashSet<>());
         this.idPost = idPost;
         this.title = title;
@@ -27,13 +29,25 @@ public class Post {
         this.comments = Collections.synchronizedSet(new HashSet<>());
     }
 
+    public Set<Comment> getComments() {
+        return comments;
+    }
+
+
     public Set<String> getRewinUser() {
         return rewinUser;
+    }
+
+    public void incEvaluete(){ this.counterEvaluete++;}
+
+    public Double getCounterEvaluete() {
+        return counterEvaluete;
     }
 
     public Set<Vote> getRatesUsers() {
         return ratesUsers;
     }
+
     public void addComment(String idUser, String comment,String username)
     {
         Comment newComment = new Comment(idUser,comment,username);
@@ -80,6 +94,16 @@ public class Post {
         result.append("\n");
         return result.toString();
     }
+    public String toString2() {
+        StringBuilder result = new StringBuilder(this.idPost + "          |     ");
+        result.append(this.usernameAutore).append("     |     ");
+        result.append(this.title).append("     |     ");
+        result.append("\n");
+        result.append(this.ratesUsers.toString()).append("\n");
+        result.append(this.comments.toString()).append("\n");
+        return result.toString();
+    }
+
     public String toStringShowPost() {
         StringBuilder result = new StringBuilder("Titolo: "+this.title +"\n");
         result.append("Contenuto: ").append(this.contenuto).append("\n");

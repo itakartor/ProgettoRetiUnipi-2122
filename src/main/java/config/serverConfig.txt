@@ -20,3 +20,9 @@ PATH=documentation
 USERFILE=users
 # Nome del file json dei posts
 POSTFILE=posts
+# Nome del file json dei wallets
+WALLETFILE=wallets
+# Percentuale ricompensa Autore
+PERCAU=70
+# Percentuale ricompensa Curatore
+PERCCUR=30
