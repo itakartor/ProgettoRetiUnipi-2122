@@ -75,17 +75,17 @@ public class RegisterInterfaceRemoteImpl implements RegisterInterfaceRemote{
         if (!clients.contains(ClientInterface))
         {
             clients.add(ClientInterface);
-            System.out.println("New client registered." );
+            System.out.println("[SERVER]: New client registered ");
         }
     }
 
     public void unregisterForCallback(ClientRemoteInterface ClientInterface) throws RemoteException {
         if (clients.remove(ClientInterface))
         {
-            System.out.println("Client unregistered");
+            System.out.println("[SERVER]:Client unregistered ");
         }
         else {
-            System.out.println("Unable to unregister client.");
+            System.out.println("Unable to unregister client ");
         }
     }
 

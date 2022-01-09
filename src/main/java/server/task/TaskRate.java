@@ -52,6 +52,7 @@ public class TaskRate implements Callable<String> {
                     if(myPost != null) { // se è andato tutto a buon fine metto il voto e dico al server di aggiornare la lista di post
                         myPost.addVote(myUser.getIdUser(), vote);
                         this.listPost.setListPostModified(true);
+                        myPost.setPostRateOrComment(true); // dico alla taskEarn di poter calcolare le ricompense
                         result = new StringBuilder("[SERVER]: Voto accettato");
                     }
                 }

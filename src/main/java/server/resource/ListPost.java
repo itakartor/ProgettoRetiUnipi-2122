@@ -13,6 +13,7 @@ public class ListPost {
     private Boolean listPostModified;
     private String timeStamp;
 
+
     public ListPost(String pathFile,String nameFile) throws IOException {
         this.listPost = Collections.synchronizedSet(new HashSet<>());
         this.listPostModified = false;
@@ -39,6 +40,7 @@ public class ListPost {
                 break;
         }
     }
+
 
     public Boolean isModified() {
         return listPostModified;

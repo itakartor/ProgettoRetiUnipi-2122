@@ -60,7 +60,7 @@ public class ClientMain {
             // fine configurazione RMI
 
             /* si registra per la callback */
-            System.out.println("Registering for callback");
+            System.out.println("[CLIENT]:Registering for callback");
             ClientRemoteInterface callbackObj = new ClientRemoteInterfaceImpl();
             ClientRemoteInterface stub = (ClientRemoteInterface) UnicastRemoteObject.exportObject(callbackObj, 0);
             assert remoteService != null;

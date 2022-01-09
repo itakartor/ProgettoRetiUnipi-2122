@@ -46,7 +46,7 @@ public class Wallet {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("     My Wallet      ").append("\n");
-        result.append("valore: ").append(this.value).append("\n");
+        result.append("valore: ").append(this.value).append(" Wincoin").append("\n");
         result.append("Transaction: ").append("\n");
         if(this.listTransaction.isEmpty())
         {

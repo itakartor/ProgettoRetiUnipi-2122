@@ -14,8 +14,10 @@ public class Post {
     private final Set<Comment> comments;
     private final Set<Vote> ratesUsers;
     private Double counterEvaluete;
+    private Boolean postRateOrComment;
 
     public Post(String idPost, String title, String contenuto, String idAutore, String usernameAutore) {
+        this.postRateOrComment = false;
         this.usernameAutore = usernameAutore;
         this.counterEvaluete = (double) 0;
         this.ratesUsers = Collections.synchronizedSet(new HashSet<>());
@@ -27,6 +29,14 @@ public class Post {
         this.idAutore = idAutore;
         this.rewinUser = Collections.synchronizedSet(new HashSet<>());
         this.comments = Collections.synchronizedSet(new HashSet<>());
+    }
+
+    public Boolean getPostRateOrComment() {
+        return postRateOrComment;
+    }
+
+    public void setPostRateOrComment(Boolean postRateOrComment) {
+        this.postRateOrComment = postRateOrComment;
     }
 
     public Set<Comment> getComments() {

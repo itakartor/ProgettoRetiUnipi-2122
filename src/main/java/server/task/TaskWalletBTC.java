@@ -34,7 +34,7 @@ public class TaskWalletBTC implements Callable<String> {
             {
                 float convertBTC = Generators.getRandomFromRandomDotOrg();
                 double newValueWallet = (convertBTC/100)* myWallet.getValue();
-                result = new StringBuilder("Il valore del wallet convertito in BTC e': " + newValueWallet);
+                result = new StringBuilder("Il valore del wallet convertito in BTC e': " + newValueWallet+ " BTC");
             }
             else
                 result = new StringBuilder("[SERVER]: Wallet non trovato");

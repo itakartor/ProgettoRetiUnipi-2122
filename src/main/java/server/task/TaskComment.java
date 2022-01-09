@@ -42,6 +42,7 @@ public class TaskComment implements Callable<String> {
                     // se è andato tutto a buon fine metto il voto e dico al server di aggiornare la lista di post
                     myPost.addComment(myUser.getIdUser(),comment,myUser.getUsername());
                     this.listPost.setListPostModified(true);
+                    myPost.setPostRateOrComment(true); // dico alla taskEarn di poter calcolare le ricompense
                     result = new StringBuilder("[SERVER]: Commento accettato");
                 }
                 else
