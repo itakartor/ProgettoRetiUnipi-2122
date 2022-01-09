@@ -212,10 +212,11 @@ public class ServerMain {
                             {
                                 StringBuilder string = new StringBuilder("Comandi per il server: \n");
                                 string.append("-help : mostra i comandi utilizzabili sulla piattaforma\n");
+                                string.append("-!quit : chiude immediatamente il client sloggando dall'utente in caso che sia loggato\n");
                                 string.append("-register <USERNAME> <PASSWORD> <TAG1> [TAG2] [TAG3] : e' possibile registrare l'utente,\n" +
                                         " ma bisogna dare un username univoco,\n" +
                                         " una password di minimo 6 caratteri\n" +
-                                        " e minimo 1 tag o massimo 3 tags\n");
+                                        " e minimo 1 tag o massimo 5 tags\n");
                                 string.append("-login <USERNAME> <PASSWORD>: l'utente viene connesso,\n" +
                                         " senza questa operazione non sara' possibile eseguire le altre operazioni sottostanti\n");
                                 string.append("-logout : l'utente si disconnetera' dal client\n");
@@ -230,6 +231,10 @@ public class ServerMain {
                                 string.append("-show feed : verranno mostrati i post degli utenti seguiti dall'utente connesso\n");
                                 string.append("-delete <IDPOST> : verra' cancellato un post di cui si e' autori\n");
                                 string.append("-rewin <IDPOST> : verra' condiviso un post di un altro utente sul proprio blog per dargli maggiore visibilita'\n");
+                                string.append("-rate <IDPOST> <+1 o -1>: verra' votato un post di un altro utente, il post puo' essere votato una volta sola e non posso votare i post di cui sono proprietario\n");
+                                string.append("-comment <IDPOST> \"<CONTENT>\": verra' commentato un post di un altro utente e non posso commentare i post di cui sono proprietario");
+                                string.append("-wallet: restituisce le informazioni relative al proprio wallet ");
+                                string.append("-wallet btc: restituisce il valore del wallet convertito in bitcoin");
                                 output = string.toString();
                                 // System.out.println("dentro allo swithc "+output);
                                 break;
